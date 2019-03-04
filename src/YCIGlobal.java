@@ -7,25 +7,25 @@ import java.util.Properties;
 
 public class YCIGlobal {
 
-	public static final String VERSION = "Version 1.2.0";			// °æ±¾
+	public static final String VERSION = "Version 1.2.0";			// ç‰ˆæœ¬
 
-	// »ñÈ¡½ø³ÌID
+	// è·å–è¿›ç¨‹ID
 	public static final int GetProcessID() {
 		RuntimeMXBean rt_mxb = ManagementFactory.getRuntimeMXBean();
 		return Integer.parseInt(rt_mxb.getName().split("@")[0]);
 	}
 
-	// ÊÇ·ñÎªWindows²Ù×÷ÏµÍ³£¿
+	// æ˜¯å¦ä¸ºWindowsæ“ä½œç³»ç»Ÿï¼Ÿ
 	public static final boolean IsWindowsOS() {
 		return System.getProperty("os.name").toLowerCase().startsWith("win");
 	}
 
-	// »ñÈ¡µ±Ç°Ê±¼ä£¨Ö¸¶¨¸ñÊ½£©
+	// è·å–å½“å‰æ—¶é—´ï¼ˆæŒ‡å®šæ ¼å¼ï¼‰
 	public static String CurrentDateTime(String format) {
 		return new SimpleDateFormat(format).format(new Date());
 	}
 
-	// ¶ÁÈ¡ÅäÖÃĞÅÏ¢
+	// è¯»å–é…ç½®ä¿¡æ¯
 	public static String ReadProperty(Properties prop, String key) throws IOException {
 		final String PROP_VAL = prop.getProperty(key);
 		if ( null == PROP_VAL || PROP_VAL.isEmpty() ) {
@@ -35,7 +35,7 @@ public class YCIGlobal {
 		}
 	}
 
-	// ²ğ·Ö²¢È¥³ıÊ×Î²¿Õ°×·û
+	// æ‹†åˆ†å¹¶å»é™¤é¦–å°¾ç©ºç™½ç¬¦
 	public static String[] SplitTrim(String src, String regex, int limit) {
 		String[] src_strs = src.split(regex, limit);
 		String[] des_strs = new String[src_strs.length];

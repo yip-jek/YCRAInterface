@@ -4,7 +4,7 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-// ÅäÖÃÀà
+// é…ç½®ç±»
 public class YCIConfig {
 
 	private static final String YCI_WORKERS          = "YCI.Workers";
@@ -28,21 +28,21 @@ public class YCIConfig {
 	private Properties m_propCfg        = null;
 	private int        m_workers        = 0;
 	private String     m_dbDriver       = null;
-	private String     m_dbURL          = null;				// Êı¾İ¿âURL
-	private String     m_dbUsr          = null;				// Êı¾İ¿âÓÃ»§Ãû
-	private String     m_dbPwd          = null;				// Êı¾İ¿âÃÜÂë
-	private String     m_sqlRegion      = null;				// µØÊĞĞÅÏ¢SQLÓï¾ä
-	private String     m_tabReportState = null;				// ±¨±í×´Ì¬±í
-//	private String     m_hdfsHost       = null;				// HDFSÖ÷»ú
-//	private int        m_hdfsPort       = 0;				// HDFS¶Ë¿Ú
-//	private String     m_hdfsPath       = null;				// HDFSÂ·¾¶
+	private String     m_dbURL          = null;				// æ•°æ®åº“URL
+	private String     m_dbUsr          = null;				// æ•°æ®åº“ç”¨æˆ·å
+	private String     m_dbPwd          = null;				// æ•°æ®åº“å¯†ç 
+	private String     m_sqlRegion      = null;				// åœ°å¸‚ä¿¡æ¯SQLè¯­å¥
+	private String     m_tabReportState = null;				// æŠ¥è¡¨çŠ¶æ€è¡¨
+//	private String     m_hdfsHost       = null;				// HDFSä¸»æœº
+//	private int        m_hdfsPort       = 0;				// HDFSç«¯å£
+//	private String     m_hdfsPath       = null;				// HDFSè·¯å¾„
 //	private String     m_hiveZkquorum   = null;
 //	private String     m_hiveKrb5       = null;
 //	private String     m_hiveUserkey    = null;
 //	private String     m_hivePrincipal  = null;
 //	private String     m_hiveJaas       = null;
-//	private String     m_hiveLocation   = null;				// HIVEÎ»ÖÃ
-	private String     m_policy         = null;				// ²ßÂÔ
+//	private String     m_hiveLocation   = null;				// HIVEä½ç½®
+	private String     m_policy         = null;				// ç­–ç•¥
 
 	public YCIConfig(Properties prop) throws IOException {
 		m_propCfg = prop;
@@ -66,7 +66,7 @@ public class YCIConfig {
 		}
 	}
 
-	// ¶ÁÈ¡Êı¾İ¿âÅäÖÃ
+	// è¯»å–æ•°æ®åº“é…ç½®
 	private void ReadDBConfig() throws IOException {
 		m_dbDriver = YCIGlobal.ReadProperty(m_propCfg, DB_DRIVER);
 		m_dbURL    = YCIGlobal.ReadProperty(m_propCfg, DB_URL);
@@ -79,9 +79,9 @@ public class YCIConfig {
 		m_tabReportState = YCIGlobal.ReadProperty(m_propCfg, DES_REPORT_STATE_TAB);
 	}
 
-//	// ¶ÁÈ¡HDFSÅäÖÃ
+//	// è¯»å–HDFSé…ç½®
 //	private void ReadHdfsConfig() {
-//		// HDFSÅäÖÃ¿ÉÎª¿Õ£¡
+//		// HDFSé…ç½®å¯ä¸ºç©ºï¼
 //		m_hdfsHost = m_propCfg.getProperty(HDFS_HOST);
 //		m_hdfsPath = m_propCfg.getProperty(HDFS_PATH);
 //
@@ -91,9 +91,9 @@ public class YCIConfig {
 //		}
 //	}
 
-//	// ¶ÁÈ¡HIVEÅäÖÃ
+//	// è¯»å–HIVEé…ç½®
 //	private void ReadHiveConfig() {
-//		// HIVEÅäÖÃ¿ÉÎª¿Õ£¡
+//		// HIVEé…ç½®å¯ä¸ºç©ºï¼
 //		m_hiveZkquorum  = m_propCfg.getProperty(HIVE_ZKQUORUM);
 //		m_hiveKrb5      = m_propCfg.getProperty(HIVE_KRB5);
 //		m_hiveUserkey   = m_propCfg.getProperty(HIVE_USER_KEYTAB);
@@ -102,12 +102,12 @@ public class YCIConfig {
 //		m_hiveLocation  = m_propCfg.getProperty(HIVE_LOCATION);
 //	}
 
-	// ¶ÁÈ¡PolicyÅäÖÃ
+	// è¯»å–Policyé…ç½®
 	private void ReadPolicyConfig() throws IOException {
 		m_policy = YCIGlobal.ReadProperty(m_propCfg, YCI_POLICY);
 	}
 
-	// Êä³öÅäÖÃĞÅÏ¢
+	// è¾“å‡ºé…ç½®ä¿¡æ¯
 	private void ShowConfig() {
 		Logger logger = LogManager.getLogger(Object.class);
 
@@ -149,32 +149,32 @@ public class YCIConfig {
 		return m_dbDriver;
 	}
 
-	// »ñÈ¡Êı¾İ¿âURL
+	// è·å–æ•°æ®åº“URL
 	public String GetDBURL() {
 		return m_dbURL;
 	}
 
-	// »ñÈ¡Êı¾İ¿âÓÃ»§Ãû
+	// è·å–æ•°æ®åº“ç”¨æˆ·å
 	public String GetDBUser() {
 		return m_dbUsr;
 	}
 
-	// »ñÈ¡Êı¾İ¿âÃÜÂë
+	// è·å–æ•°æ®åº“å¯†ç 
 	public String GetDBPassword() {
 		return m_dbPwd;
 	}
 
-//	// »ñÈ¡HDFSÖ÷»ú
+//	// è·å–HDFSä¸»æœº
 //	public String GetHdfsHost() {
 //		return m_hdfsHost;
 //	}
 //
-//	// »ñÈ¡HDFS¶Ë¿Ú
+//	// è·å–HDFSç«¯å£
 //	public int GetHdfsPort() {
 //		return m_hdfsPort;
 //	}
 //
-//	// »ñÈ¡HDFSÂ·¾¶
+//	// è·å–HDFSè·¯å¾„
 //	public String GetHdfsPath() {
 //		return m_hdfsPath;
 //	}

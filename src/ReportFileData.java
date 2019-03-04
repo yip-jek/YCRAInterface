@@ -1,5 +1,5 @@
 
-// ±¨±íÊı¾İÀà
+// æŠ¥è¡¨æ•°æ®ç±»
 public class ReportFileData {
 
 	public int GetColumnSize() {

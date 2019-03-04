@@ -1,5 +1,5 @@
 
-// ¹¤×÷ÈÎÎñÀà
+// å·¥ä½œä»»åŠ¡ç±»
 public class YCIJob {
 
 	public YCIPolicy policy = null;

@@ -4,7 +4,7 @@ import org.apache.logging.log4j.Logger;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
-// ĞÅºÅÀà
+// ä¿¡å·ç±»
 @SuppressWarnings("restriction")
 public class YCSignal implements SignalHandler {
 
@@ -23,7 +23,7 @@ public class YCSignal implements SignalHandler {
 		QUIT_SIGNAL_SET = true;
 	}
 
-	// ÊÇ·ñÎªÍË³öµÄĞÅºÅ
+	// æ˜¯å¦ä¸ºé€€å‡ºçš„ä¿¡å·
 	public boolean IsQuitSignal() {
 		return QUIT_SIGNAL_SET;
 	}

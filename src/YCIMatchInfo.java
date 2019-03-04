@@ -1,10 +1,10 @@
 
-// Æ¥ÅäĞÅÏ¢Àà
+// åŒ¹é…ä¿¡æ¯ç±»
 public class YCIMatchInfo {
 
-	private String m_city = null;				// µØÊĞ
-	private String m_date = null;				// ÈÕÆÚ
-	private String m_seq  = null;				// ĞòºÅ
+	private String m_city = null;				// åœ°å¸‚
+	private String m_date = null;				// æ—¥æœŸ
+	private String m_seq  = null;				// åºå·
 
 	public YCIMatchInfo() {
 		;

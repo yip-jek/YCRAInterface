@@ -1,8 +1,8 @@
 
-// µØÊĞĞÅÏ¢
+// åœ°å¸‚ä¿¡æ¯
 public class YCIRegion {
 
-	private String m_city = null;				// µØÊĞÓ¢ÎÄ¼ò³Æ
+	private String m_city = null;				// åœ°å¸‚è‹±æ–‡ç®€ç§°
 
 	public YCIRegion(String city) {
 		this.m_city = city;

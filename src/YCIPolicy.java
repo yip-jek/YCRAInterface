@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.util.Properties;
 
-// ≤ﬂ¬‘
+// Á≠ñÁï•
 public class YCIPolicy {
 
 	private static final String PREFIX_POLICY       = "Policy_";
@@ -13,16 +13,16 @@ public class YCIPolicy {
 	private static final String DES_FIELDS          = "des_fields";
 	private static final String DES_FIELD_SEPARATOR = ",";
 
-	private static final String PLACEHOLDER_REGION  = "\\[XX\\]";		// ’ºŒª∑˚£∫µÿ –
+	private static final String PLACEHOLDER_REGION  = "\\[XX\\]";		// Âç†‰ΩçÁ¨¶ÔºöÂú∞Â∏Ç
 
 	private PolicyManager m_policyMgr       = null;
-	private int           m_id              = 0;				// ≤ﬂ¬‘ID
+	private int           m_id              = 0;				// Á≠ñÁï•ID
 	private YCIFileName[] m_fileNames       = null;
-	private String        m_srcFileEncoding = null;				// ‘¥Œƒº˛±‡¬Î∏Ò Ω
-	private int           m_srcColumnSize   = 0;				// ‘¥Œƒº˛ ˝æ›¡– ˝
-	private String        m_srcSeparator    = null;				// ‘¥Œƒº˛ ˝æ›∑÷∏Ù∑˚
-	private String        m_desTable        = null;				// ƒø±Í±Ì√˚
-	private String[]      m_desFields       = null;				// ƒø±Í±Ì◊÷∂Œ√˚≥∆
+	private String        m_srcFileEncoding = null;				// Ê∫êÊñá‰ª∂ÁºñÁ†ÅÊ†ºÂºè
+	private int           m_srcColumnSize   = 0;				// Ê∫êÊñá‰ª∂Êï∞ÊçÆÂàóÊï∞
+	private String        m_srcSeparator    = null;				// Ê∫êÊñá‰ª∂Êï∞ÊçÆÂàÜÈöîÁ¨¶
+	private String        m_desTable        = null;				// ÁõÆÊ†áË°®Âêç
+	private String[]      m_desFields       = null;				// ÁõÆÊ†áË°®Â≠óÊÆµÂêçÁß∞
 
 	public YCIPolicy(PolicyManager policyMgr, int id, Properties prop) throws IOException {
 		m_policyMgr = policyMgr;
@@ -50,7 +50,7 @@ public class YCIPolicy {
 	}
 
 	private void GenerateFileName(String src_file) {
-		//  «∑Ò¥Ê‘⁄°∞µÿ –’ºŒª∑˚°±£ø
+		// ÊòØÂê¶Â≠òÂú®‚ÄúÂú∞Â∏ÇÂç†‰ΩçÁ¨¶‚ÄùÔºü
 		if ( src_file.indexOf(PLACEHOLDER_REGION) >= 0 ) {
 			YCIRegion[] regions = m_policyMgr.GetRegions();
 
@@ -59,7 +59,7 @@ public class YCIPolicy {
 				String city = regions[i].GetCity();
 				m_fileNames[i] = new YCIFileName(city, src_file.replaceAll(PLACEHOLDER_REGION, city));
 			}
-		} else {		// √ª”–µÿ ––≈œ¢
+		} else {		// Ê≤°ÊúâÂú∞Â∏Ç‰ø°ÊÅØ
 			m_fileNames    = new YCIFileName[1];
 			m_fileNames[0] = new YCIFileName("", src_file);
 		}

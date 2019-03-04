@@ -3,7 +3,7 @@ import java.sql.Connection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-// ¹¤×÷Àà
+// å·¥ä½œç±»
 public class YCIWorker implements Runnable {
 
 	private static final int EX_SLEEP_TIME = 60*1000;
@@ -16,14 +16,14 @@ public class YCIWorker implements Runnable {
 //	private WorkerState   m_state     = WorkerState.INIT;
 	private Connection    m_dbConn    = null;
 
-//	// ×´Ì¬
+//	// çŠ¶æ€
 //	public enum WorkerState {
-//		INIT,			// ³õÊ¼×´Ì¬
-//		START,			// ¿ªÊ¼×´Ì¬
-//		IDLE,			// ¿ÕÏĞ×´Ì¬
-//		BUSY,			// Ã¦Âµ×´Ì¬
-//		STOP,			// Í£Ö¹×´Ì¬
-//		END				// ½áÊø×´Ì¬
+//		INIT,			// åˆå§‹çŠ¶æ€
+//		START,			// å¼€å§‹çŠ¶æ€
+//		IDLE,			// ç©ºé—²çŠ¶æ€
+//		BUSY,			// å¿™ç¢ŒçŠ¶æ€
+//		STOP,			// åœæ­¢çŠ¶æ€
+//		END				// ç»“æŸçŠ¶æ€
 //	}
 
 	public YCIWorker(WorkManager workMgr, int id, Connection conn) {
@@ -64,7 +64,7 @@ public class YCIWorker implements Runnable {
 		m_workMgr.FinishJob(job);
 	}
 
-	// ¿ªÊ¼
+	// å¼€å§‹
 	public void Start() {
 		if ( !m_running ) {
 			m_running = true;
@@ -74,14 +74,14 @@ public class YCIWorker implements Runnable {
 		}
 	}
 
-	// ×¼±¸½áÊø
+	// å‡†å¤‡ç»“æŸ
 	public void Prepare2Stop() {
 		if ( m_running ) {
 			m_running = false;
 		}
 	}
 
-	// µÈ´ı½áÊø
+	// ç­‰å¾…ç»“æŸ
 	public void Wait2Stop() throws InterruptedException {
 		if ( m_thread.isAlive() ) {
 			m_thread.join();

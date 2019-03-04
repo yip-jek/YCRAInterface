@@ -3,10 +3,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-// 数据库访问类
+// 鏁版嵁搴撹闂被
 public class YCIDao {
 
-	// 获取地市信息
+	// 鑾峰彇鍦板競淇℃伅
 	public static YCIRegion[] FetchRegionInfo(Connection conn, String sql) throws SQLException {
 		Statement stat = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		ResultSet rs   = stat.executeQuery(sql);

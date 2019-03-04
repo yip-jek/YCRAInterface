@@ -18,11 +18,11 @@ public class YCRAInterface {
 	private String m_cfgfile    = null;
 
 	private Logger            m_logger        = null;
-	private YCIConfig         m_yciconfig     = null;			// ÅäÖÃÀà
+	private YCIConfig         m_yciconfig     = null;			// é…ç½®ç±»
 	private PolicyManager     m_policyMgr     = null;
-	private YCSignal          m_ycsignal      = null;			// ĞÅºÅÀà
+	private YCSignal          m_ycsignal      = null;			// ä¿¡å·ç±»
 	private ConnectionFactory m_dbConnFactory = null;
-	private WorkManager       m_workMgr       = null;			// ¹¤×÷Ïß³Ì¹ÜÀí
+	private WorkManager       m_workMgr       = null;			// å·¥ä½œçº¿ç¨‹ç®¡ç†
 
 	public YCRAInterface(String log4j2_file, String cfg_file) {
 		m_log4j2file = log4j2_file;
@@ -38,7 +38,7 @@ public class YCRAInterface {
 		Exec();
 	}
 
-	// ³õÊ¼»¯
+	// åˆå§‹åŒ–
 	private void Init() throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		CreateLogger();
 		LoadConfig();
@@ -50,7 +50,7 @@ public class YCRAInterface {
 		m_logger.info("Init OK.");
 	}
 
-	// ´´½¨ÈÕÖ¾
+	// åˆ›å»ºæ—¥å¿—
 	private void CreateLogger() throws IOException {
 		File log_file = new File(m_log4j2file);
 
@@ -63,13 +63,13 @@ public class YCRAInterface {
 		OutputLogHeader();
 	}
 
-	// Êä³öÈÕÖ¾Í·ĞÅÏ¢
+	// è¾“å‡ºæ—¥å¿—å¤´ä¿¡æ¯
 	private void OutputLogHeader() {
 		m_logger.info("PID=["+YCIGlobal.GetProcessID()+"]");
 		m_logger.info(this.getClass().getName()+" "+YCIGlobal.VERSION);
 	}
 
-	// ÔØÈëÅäÖÃĞÅÏ¢
+	// è½½å…¥é…ç½®ä¿¡æ¯
 	private void LoadConfig() throws IOException {
 		Properties prop_cfg = new Properties();
 		prop_cfg.load(new FileInputStream(m_cfgfile));
@@ -78,7 +78,7 @@ public class YCRAInterface {
 		m_logger.info("Load config OK.");
 	}
 
-	// ÔØÈë²ßÂÔĞÅÏ¢
+	// è½½å…¥ç­–ç•¥ä¿¡æ¯
 	private void InitPolicy() throws FileNotFoundException, IOException, SQLException {
 		Connection  conn    = m_dbConnFactory.CreateConnection();
 		YCIRegion[] regions = YCIDao.FetchRegionInfo(conn, m_yciconfig.GetRegionSQL());
@@ -88,28 +88,28 @@ public class YCRAInterface {
 		m_policyMgr = new PolicyManager(m_yciconfig.GetPolicy(), regions);
 	}
 
-	// ³õÊ¼»¯ĞÅºÅ
+	// åˆå§‹åŒ–ä¿¡å·
 	private void InitSignal() {
 		m_ycsignal = new YCSignal();
 
 		m_logger.info("Set signal OK.");
 	}
 
-	// ´´½¨Êı¾İ¿âÁ¬½Ó¹¤³§
+	// åˆ›å»ºæ•°æ®åº“è¿æ¥å·¥å‚
 	private void CreateDBFactory() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		m_dbConnFactory = new ConnectionFactory(m_yciconfig);
 
 		m_logger.info("ConnectionFactory is created.");
 	}
 
-	// ×¼±¸¹¤×÷Ïß³Ì
+	// å‡†å¤‡å·¥ä½œçº¿ç¨‹
 	private void PrepareWorker() throws SQLException {
 		m_workMgr = new WorkManager(m_yciconfig, m_dbConnFactory, m_policyMgr);
 
 		m_logger.info("WorkManager is ready.");
 	}
 
-	// Ö´ĞĞ
+	// æ‰§è¡Œ
 	private void Exec() throws InterruptedException, SQLException {
 		Begin();
 

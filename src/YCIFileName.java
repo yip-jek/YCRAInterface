@@ -1,10 +1,10 @@
 
-// ÎÄ¼şÃûÆ¥ÅäÀà
+// æ–‡ä»¶ååŒ¹é…ç±»
 public class YCIFileName {
 
-	private String m_fnCity    = null;				// ÎÄ¼şÃûµØÊĞ
-	private String m_fileName  = null;				// ÎÄ¼şÃû
-	private String m_fileRegex = null;				// ÎÄ¼şÃûÕıÔò±í´ïÊ½
+	private String m_fnCity    = null;				// æ–‡ä»¶ååœ°å¸‚
+	private String m_fileName  = null;				// æ–‡ä»¶å
+	private String m_fileRegex = null;				// æ–‡ä»¶åæ­£åˆ™è¡¨è¾¾å¼
 
 	public YCIFileName(String city, String file_name) {
 		m_fnCity   = city;

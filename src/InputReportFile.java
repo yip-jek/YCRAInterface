@@ -1,5 +1,5 @@
 
-// ÊäÈë±¨±íÎÄ¼şÀà
+// è¾“å…¥æŠ¥è¡¨æ–‡ä»¶ç±»
 public class InputReportFile {
 
 	public void Open() {

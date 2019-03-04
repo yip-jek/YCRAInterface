@@ -5,7 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-// ¹¤×÷Ïß³Ì¹ÜÀíÀà
+// å·¥ä½œçº¿ç¨‹ç®¡ç†ç±»
 public class WorkManager {
 
 	private Logger                      m_logger         = null;
@@ -75,7 +75,7 @@ public class WorkManager {
 		m_logger.info("All workers stopped.");
 	}
 
-	// »ñÈ¡ÈÎÎñ
+	// è·å–ä»»åŠ¡
 	public synchronized YCIJob GetJob() {
 		YCIPolicy yc_policy = m_policyMgr.GetPolicy();
 		if ( null == yc_policy ) {
@@ -91,7 +91,7 @@ public class WorkManager {
 		return job;
 	}
 
-	// ¹¤×÷ÈÎÎñ
+	// å·¥ä½œä»»åŠ¡
 	public synchronized void FinishJob(YCIJob job) {
 		m_policyMgr.PutPolicy(job.policy);
 
@@ -99,7 +99,7 @@ public class WorkManager {
 		m_queueJobs.add(job);
 	}
 
-	// ¸üĞÂÈÎÎñ×´Ì¬
+	// æ›´æ–°ä»»åŠ¡çŠ¶æ€
 	private void UpdateJobState(YCIJob job) {
 		;
 	}

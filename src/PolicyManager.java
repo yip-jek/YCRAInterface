@@ -6,7 +6,7 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-// ²ßÂÔ¹ÜÀíÀà
+// ç­–ç•¥ç®¡ç†ç±»
 public class PolicyManager {
 
 	private static final String TOTAL_POLICY = "TOTAL_POLICY";
@@ -26,7 +26,7 @@ public class PolicyManager {
 		Properties prop_policy = new Properties();
 		prop_policy.load(new FileInputStream(policy_file));
 
-		// »ñÈ¡×Ü²ßÂÔsize
+		// è·å–æ€»ç­–ç•¥size
 		final int TOTAL = Integer.parseInt(YCIGlobal.ReadProperty(prop_policy, TOTAL_POLICY));
 		if ( TOTAL <= 0 ) {
 			throw new IOException("Invalid number of policy in configuration \""+TOTAL_POLICY+"\": "+TOTAL);
@@ -44,8 +44,8 @@ public class PolicyManager {
 		return m_regions;
 	}
 
-	// »ñÈ¡ÎÄ¼şÃûÆ¥ÅäµÄ²ßÂÔ
-	// ÈôÃ»ÓĞ¶ÔÓ¦µÄÆ¥Åä²ßÂÔ£¬Ôòreturn null
+	// è·å–æ–‡ä»¶ååŒ¹é…çš„ç­–ç•¥
+	// è‹¥æ²¡æœ‰å¯¹åº”çš„åŒ¹é…ç­–ç•¥ï¼Œåˆ™return null
 	public YCIPolicy GetMatchPolicy(String file_name) {
 		for ( int i = 0; i < m_policys.length; ++i ) {
 			if ( m_policys[i].MatchFile(file_name) ) {
