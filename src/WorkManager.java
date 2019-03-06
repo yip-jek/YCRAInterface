@@ -8,20 +8,21 @@ import org.apache.logging.log4j.Logger;
 // 工作线程管理类
 public class WorkManager {
 
-	private Logger                      m_logger         = null;
-	private YCIConfig                   m_cfg            = null;
-	private ConnectionFactory           m_dbConnFactory  = null;
-	private PolicyManager               m_policyMgr      = null;
-	private Connection                  m_dbConn         = null;
-	private String                      m_sqlUpdJobState = null;
-	private YCIWorker[]                 m_workers        = null;
-	private LinkedBlockingQueue<YCIJob> m_queueJobs      = null;
+	private Logger            m_logger         = null;
+	private YCIConfig         m_cfg            = null;
+	private ConnectionFactory m_dbConnFactory  = null;
+	private PolicyManager     m_policyMgr      = null;
+	private YCIInput          m_input          = null;
+	private Connection        m_dbConn         = null;
+	private String            m_sqlUpdJobState = null;
+	private YCIWorker[]       m_workers        = null;
 
-	public WorkManager(YCIConfig cfg, ConnectionFactory dbConnFactory, PolicyManager policyMgr) throws SQLException {
+	public WorkManager(YCIConfig cfg, ConnectionFactory dbConnFactory, PolicyManager policyMgr, YCIInput input) throws SQLException {
 		m_cfg           = cfg;
 		m_dbConnFactory = dbConnFactory;
 		m_dbConn        = m_dbConnFactory.CreateConnection();
 		m_policyMgr     = policyMgr;
+		m_input         = input;
 
 		m_logger = LogManager.getLogger(Object.class);
 		m_logger.info("WorkManager connected the DB.");
@@ -30,8 +31,7 @@ public class WorkManager {
 	}
 
 	private void Init() {
-		m_workers   = new YCIWorker[m_cfg.GetWorkers()];
-		m_queueJobs = new LinkedBlockingQueue<YCIJob>();
+		m_workers = new YCIWorker[m_cfg.GetWorkers()];
 
 		StringBuffer str = new StringBuffer();
 		str.append("UPDATE ").append(m_cfg.GetDesReportStateTab()).append(" SET ");
@@ -54,21 +54,15 @@ public class WorkManager {
 	}
 
 	public void Prepare2StopAll() {
-		final int SIZE = m_workers.length;
-		for ( int i = 0; i < SIZE; ++i ) {
-			YCIWorker worker = m_workers[i];
+		for ( YCIWorker worker : m_workers ) {
 			worker.Prepare2Stop();
-
 			m_logger.info("Worker [ID="+worker.GetID()+"] is preparing to stop ...");
 		}
 	}
 
 	public void Wait2StopAll() throws InterruptedException {
-		final int SIZE = m_workers.length;
-		for ( int i = 0; i < SIZE; ++i ) {
-			YCIWorker worker = m_workers[i];
+		for ( YCIWorker worker : m_workers ) {
 			worker.Wait2Stop();
-
 			m_logger.info("Worker [ID="+worker.GetID()+"] is stopped!");
 		}
 
@@ -76,27 +70,21 @@ public class WorkManager {
 	}
 
 	// 获取任务
-	public synchronized YCIJob GetJob() {
-		YCIPolicy yc_policy = m_policyMgr.GetPolicy();
-		if ( null == yc_policy ) {
+	public YCIJob GetJob() {
+		InputReportFile report_file = m_input.GetInputReportFile();
+		if ( report_file == null ) {
 			return null;
 		}
 
-		YCIJob job = m_queueJobs.poll();
-		if ( null == job ) {
-			job = new YCIJob();
-		}
-
-		job.policy = yc_policy;
+		YCIJob job = new YCIJob();
+		job.report_file = report_file;
+		job.policy      = m_policyMgr.GetMatchPolicy(report_file.GetFileName());
 		return job;
 	}
 
 	// 工作任务
 	public synchronized void FinishJob(YCIJob job) {
-		m_policyMgr.PutPolicy(job.policy);
-
 		UpdateJobState(job);
-		m_queueJobs.add(job);
 	}
 
 	// 更新任务状态

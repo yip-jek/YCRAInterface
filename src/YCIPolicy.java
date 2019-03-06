@@ -45,8 +45,8 @@ public class YCIPolicy {
 			throw new IOException("Invalid size of column in configuration \""+POLICY_WITH_ID+"."+SRC_COLUMN_SIZE+"\": "+m_srcColumnSize);
 		}
 
-		String fields = YCIGlobal.ReadProperty(prop, POLICY_WITH_ID+"."+DES_FIELDS);
-		m_desFields = YCIGlobal.SplitTrim(fields, DES_FIELD_SEPARATOR, 0);
+		final String FIELDS = YCIGlobal.ReadProperty(prop, POLICY_WITH_ID+"."+DES_FIELDS);
+		m_desFields = YCIGlobal.SplitTrim(FIELDS, DES_FIELD_SEPARATOR, 0);
 	}
 
 	private void GenerateFileName(String src_file) {
@@ -90,8 +90,8 @@ public class YCIPolicy {
 	}
 
 	public boolean MatchFile(String file_name) {
-		for ( int i = 0; i < m_fileNames.length; ++i ) {
-			if ( m_fileNames[i].IsMatch(file_name) ) {
+		for ( YCIFileName fname : m_fileNames ) {
+			if ( fname.IsMatch(file_name) ) {
 				return true;
 			}
 		}

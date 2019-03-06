@@ -24,6 +24,9 @@ public class YCIConfig {
 //	private static final String HIVE_JAAS            = "HIVE.jaas";
 //	private static final String HIVE_LOCATION        = "HIVE.location";
 	private static final String YCI_POLICY           = "YCI.Policy";
+	private static final String INPUT_PATH_SIZE      = "INPUT.path_size";
+	private static final String INPUT_PATH_PREFIX    = "INPUT.path_";
+	private static final String BACKUP_PATH          = "BACKUP.path";
 
 	private Properties m_propCfg        = null;
 	private int        m_workers        = 0;
@@ -43,6 +46,8 @@ public class YCIConfig {
 //	private String     m_hiveJaas       = null;
 //	private String     m_hiveLocation   = null;				// HIVE位置
 	private String     m_policy         = null;				// 策略
+	private String[]   m_paths          = null;				// 输入路径
+	private String     m_backupPath     = null;				// 备份路径
 
 	public YCIConfig(Properties prop) throws IOException {
 		m_propCfg = prop;
@@ -53,13 +58,14 @@ public class YCIConfig {
 //		ReadHiveConfig();
 		ReadDesConfig();
 		ReadPolicyConfig();
+		ReadInputConfig();
+		ReadBackupConfig();
 
 		ShowConfig();
 	}
 
 	private void ReadWorkConfig() throws IOException {
 		final String CFG_WORKERS = YCIGlobal.ReadProperty(m_propCfg, YCI_WORKERS);
-
 		m_workers = Integer.parseInt(CFG_WORKERS);
 		if ( m_workers <= 0 ) {
 			throw new IOException("Invalid number of worker process in configuration \""+YCI_WORKERS+"\": "+m_workers);
@@ -107,6 +113,25 @@ public class YCIConfig {
 		m_policy = YCIGlobal.ReadProperty(m_propCfg, YCI_POLICY);
 	}
 
+	// 读取输入路径配置
+	private void ReadInputConfig() throws IOException {
+		final String CFG_PATH_SIZE = YCIGlobal.ReadProperty(m_propCfg, INPUT_PATH_SIZE);
+		final int    PATH_SIZE     = Integer.parseInt(CFG_PATH_SIZE);
+		if ( PATH_SIZE <= 0 ) {
+			throw new IOException("Invalid number of input path size in configuration \""+INPUT_PATH_SIZE+"\": "+PATH_SIZE);
+		}
+
+		m_paths = new String[PATH_SIZE];
+		for ( int i = 0; i < PATH_SIZE; ++i ) {
+			m_paths[i] = new String(YCIGlobal.ReadProperty(m_propCfg, INPUT_PATH_PREFIX+(i+1)));
+		}
+	}
+
+	// 读取备份路径
+	private void ReadBackupConfig() throws IOException {
+		m_backupPath = YCIGlobal.ReadProperty(m_propCfg, BACKUP_PATH);
+	}
+
 	// 输出配置信息
 	private void ShowConfig() {
 		Logger logger = LogManager.getLogger(Object.class);
@@ -139,6 +164,15 @@ public class YCIConfig {
 
 		// Policy
 		logger.info("[CONFIG] "+YCI_POLICY+" = ["+m_policy+"]");
+
+		// Input
+		logger.info("[CONFIG] "+INPUT_PATH_SIZE+" = ["+m_paths.length+"]");
+		for ( int i = 0; i < m_paths.length; ++i ) {
+			logger.info("[CONFIG] "+INPUT_PATH_PREFIX+(i+1)+" = ["+m_paths[i]+"]");
+		}
+
+		// Backup
+		logger.info("[CONFIG] "+BACKUP_PATH+" = ["+m_backupPath+"]");
 	}
 
 	public int GetWorkers() {
@@ -213,6 +247,14 @@ public class YCIConfig {
 
 	public String GetPolicy() {
 		return m_policy;
+	}
+
+	public String[] GetInputPaths() {
+		return m_paths;
+	}
+
+	public String GetBackupPath() {
+		return m_backupPath;
 	}
 
 }

@@ -6,8 +6,6 @@ import org.apache.logging.log4j.Logger;
 // 工作类
 public class YCIWorker implements Runnable {
 
-	private static final int EX_SLEEP_TIME = 60*1000;
-
 	private Logger        m_logger    = null;
 	private Thread        m_thread    = null;
 	private boolean       m_running   = false;
@@ -40,7 +38,7 @@ public class YCIWorker implements Runnable {
 	public void run() {
 		while ( m_running ) {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(YCIGlobal.LOOP_SLEEP_TIME);
 
 				DoJob();
 			} catch (InterruptedException e) {
@@ -55,8 +53,8 @@ public class YCIWorker implements Runnable {
 
 	private void DoJob() throws InterruptedException {
 		YCIJob job = m_workMgr.GetJob();
-		if ( null == job ) {
-			Thread.sleep(EX_SLEEP_TIME);
+		if ( job == null ) {
+			Thread.sleep(YCIGlobal.EXTRA_SLEEP_TIME);
 			return;
 		}
 

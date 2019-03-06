@@ -22,6 +22,7 @@ public class YCRAInterface {
 	private PolicyManager     m_policyMgr     = null;
 	private YCSignal          m_ycsignal      = null;			// 信号类
 	private ConnectionFactory m_dbConnFactory = null;
+	private YCIInput          m_input         = null;			// 输入
 	private WorkManager       m_workMgr       = null;			// 工作线程管理
 
 	public YCRAInterface(String log4j2_file, String cfg_file) {
@@ -45,6 +46,7 @@ public class YCRAInterface {
 		CreateDBFactory();
 		InitPolicy();
 		InitSignal();
+		PrepareInput();
 		PrepareWorker();
 
 		m_logger.info("Init OK.");
@@ -95,6 +97,11 @@ public class YCRAInterface {
 		m_logger.info("Set signal OK.");
 	}
 
+	// 输入的准备
+	private void PrepareInput() throws IOException {
+		m_input = new YCIInput(m_yciconfig);
+	}
+
 	// 创建数据库连接工厂
 	private void CreateDBFactory() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		m_dbConnFactory = new ConnectionFactory(m_yciconfig);
@@ -104,7 +111,7 @@ public class YCRAInterface {
 
 	// 准备工作线程
 	private void PrepareWorker() throws SQLException {
-		m_workMgr = new WorkManager(m_yciconfig, m_dbConnFactory, m_policyMgr);
+		m_workMgr = new WorkManager(m_yciconfig, m_dbConnFactory, m_policyMgr, m_input);
 
 		m_logger.info("WorkManager is ready.");
 	}
@@ -114,9 +121,9 @@ public class YCRAInterface {
 		Begin();
 
 		while ( !m_ycsignal.IsQuitSignal() ) {
-			Thread.sleep(1000);
-
 			Do();
+
+			Thread.sleep(YCIGlobal.LOOP_SLEEP_TIME);
 		}
 
 		End();
@@ -129,7 +136,7 @@ public class YCRAInterface {
 	}
 
 	private void Do() {
-		;
+		m_input.Exec();
 	}
 
 	private void End() throws InterruptedException, SQLException {

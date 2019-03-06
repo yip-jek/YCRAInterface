@@ -7,7 +7,9 @@ import java.util.Properties;
 
 public class YCIGlobal {
 
-	public static final String VERSION = "Version 1.2.0";			// 版本
+	public static final String VERSION          = "Version 1.2.0";			// 版本
+	public static final int    LOOP_SLEEP_TIME  = 1000;						// 每一个循环的睡眠时间
+	public static final int    EXTRA_SLEEP_TIME = 60*1000;					// 额外的睡眠时间
 
 	// 获取进程ID
 	public static final int GetProcessID() {
@@ -28,7 +30,7 @@ public class YCIGlobal {
 	// 读取配置信息
 	public static String ReadProperty(Properties prop, String key) throws IOException {
 		final String PROP_VAL = prop.getProperty(key);
-		if ( null == PROP_VAL || PROP_VAL.isEmpty() ) {
+		if ( PROP_VAL == null || PROP_VAL.isEmpty() ) {
 			throw new IOException("Configuration item \""+key+"\" not configured correctly!");
 		} else {
 			return PROP_VAL;
