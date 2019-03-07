@@ -3,18 +3,12 @@ import java.io.File;
 // 输入报表文件类
 public class InputReportFile {
 
-	private String m_backupPath = null;
 	private File   m_file       = null;
+	private String m_backupPath = null;
 
 	public InputReportFile(File file, String backup_path) {
-		m_backupPath = backup_path;
 		m_file       = file;
-	}
-
-	public void Open() {
-	}
-
-	public void Close() {
+		m_backupPath = backup_path;
 	}
 
 	public void Backup() {
@@ -24,11 +18,7 @@ public class InputReportFile {
 		return m_file.getName();
 	}
 
-	public int GetDataSize() {
-		return 0;
-	}
-
-	public ReportFileData GetOneData(int index) {
+	public ReportFileData GetData() {
 		return null;
 	}
 

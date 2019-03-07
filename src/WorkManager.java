@@ -1,6 +1,5 @@
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

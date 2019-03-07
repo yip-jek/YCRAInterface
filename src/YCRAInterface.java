@@ -100,6 +100,8 @@ public class YCRAInterface {
 	// 输入的准备
 	private void PrepareInput() throws IOException {
 		m_input = new YCIInput(m_yciconfig);
+
+		m_logger.info("Input is ready.");
 	}
 
 	// 创建数据库连接工厂
@@ -136,7 +138,7 @@ public class YCRAInterface {
 	}
 
 	private void Do() {
-		m_input.Exec();
+		m_input.TryGetFiles();
 	}
 
 	private void End() throws InterruptedException, SQLException {
