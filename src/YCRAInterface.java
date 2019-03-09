@@ -112,7 +112,7 @@ public class YCRAInterface {
 	}
 
 	// 准备工作线程
-	private void PrepareWorker() throws SQLException {
+	private void PrepareWorker() throws SQLException, IOException {
 		m_workMgr = new WorkManager(m_yciconfig, m_dbConnFactory, m_policyMgr, m_input);
 
 		m_logger.info("WorkManager is ready.");
@@ -122,11 +122,11 @@ public class YCRAInterface {
 	private void Exec() throws InterruptedException, SQLException {
 		Begin();
 
-		while ( !m_ycsignal.IsQuitSignal() ) {
-			Do();
-
+		do {
 			Thread.sleep(YCIGlobal.LOOP_SLEEP_TIME);
-		}
+
+			Do();
+		} while ( !m_ycsignal.IsQuitSignal() && m_workMgr.CheckWorkersAlive() );
 
 		End();
 	}

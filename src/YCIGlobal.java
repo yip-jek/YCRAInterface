@@ -49,6 +49,14 @@ public class YCIGlobal {
 		}
 	}
 
+	// 移动文件到指定目录
+	public static void MoveFile(File src_file, String des_path) throws IOException {
+		final String FILE_PATH = des_path + File.separator + src_file.getName();
+		if ( !src_file.renameTo(new File(FILE_PATH)) ) {
+			throw new IOException("Move file \""+src_file.getPath()+"\" to \""+FILE_PATH+"\" failed!");
+		}
+	}
+
 	// 拆分并去除首尾空白符
 	public static String[] SplitTrim(String src, String regex, int limit) {
 		String[] src_strs = src.split(regex, limit);

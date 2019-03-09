@@ -4,19 +4,14 @@ import java.io.IOException;
 // 输入报表文件类
 public class InputReportFile {
 
-	private File   m_file       = null;
-	private String m_backupPath = null;
+	private File m_file = null;
 
-	public InputReportFile(File file, String backup_path) {
-		m_file       = file;
-		m_backupPath = backup_path;
+	public InputReportFile(File file) {
+		m_file = file;
 	}
 
-	public void Backup() throws IOException {
-		final String BKFILE_PATH = m_backupPath + File.separator + GetFileName();
-		if ( !m_file.renameTo(new File(BKFILE_PATH)) ) {
-			throw new IOException("Backup file \""+GetFilePath()+"\" to \""+BKFILE_PATH+"\" failed!");
-		}
+	public void MoveTo(String path) throws IOException {
+		YCIGlobal.MoveFile(m_file, path);
 	}
 
 	public String GetFilePath() {

@@ -26,7 +26,8 @@ public class YCIConfig {
 	private static final String YCI_POLICY           = "YCI.Policy";
 	private static final String INPUT_PATH_SIZE      = "INPUT.path_size";
 	private static final String INPUT_PATH_PREFIX    = "INPUT.path_";
-	private static final String BACKUP_PATH          = "BACKUP.path";
+	private static final String OUTPUT_BACKUP_PATH   = "OUTPUT.backup_path";
+	private static final String OUTPUT_SUSPEND_PATH  = "OUTPUT.suspend_path";
 
 	private Properties m_propCfg        = null;
 	private int        m_workers        = 0;
@@ -48,6 +49,7 @@ public class YCIConfig {
 	private String     m_policy         = null;				// 策略
 	private String[]   m_paths          = null;				// 输入路径
 	private String     m_backupPath     = null;				// 备份路径
+	private String     m_suspendPath    = null;				// 挂起路径
 
 	public YCIConfig(Properties prop) throws IOException {
 		m_propCfg = prop;
@@ -59,7 +61,7 @@ public class YCIConfig {
 		ReadDesConfig();
 		ReadPolicyConfig();
 		ReadInputConfig();
-		ReadBackupConfig();
+		ReadOutputConfig();
 
 		ShowConfig();
 	}
@@ -128,8 +130,9 @@ public class YCIConfig {
 	}
 
 	// 读取备份路径
-	private void ReadBackupConfig() throws IOException {
-		m_backupPath = YCIGlobal.ReadProperty(m_propCfg, BACKUP_PATH);
+	private void ReadOutputConfig() throws IOException {
+		m_backupPath  = YCIGlobal.ReadProperty(m_propCfg, OUTPUT_BACKUP_PATH);
+		m_suspendPath = YCIGlobal.ReadProperty(m_propCfg, OUTPUT_SUSPEND_PATH);
 	}
 
 	// 输出配置信息
@@ -171,8 +174,9 @@ public class YCIConfig {
 			logger.info("[CONFIG] "+INPUT_PATH_PREFIX+(i+1)+" = ["+m_paths[i]+"]");
 		}
 
-		// Backup
-		logger.info("[CONFIG] "+BACKUP_PATH+" = ["+m_backupPath+"]");
+		// Output
+		logger.info("[CONFIG] "+OUTPUT_BACKUP_PATH+" = ["+m_backupPath+"]");
+		logger.info("[CONFIG] "+OUTPUT_SUSPEND_PATH+" = ["+m_suspendPath+"]");
 	}
 
 	public int GetWorkers() {
@@ -255,6 +259,10 @@ public class YCIConfig {
 
 	public String GetBackupPath() {
 		return m_backupPath;
+	}
+
+	public String GetSuspendPath() {
+		return m_suspendPath;
 	}
 
 }

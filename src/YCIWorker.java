@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.sql.Connection;
 
 import org.apache.logging.log4j.LogManager;
@@ -41,7 +42,7 @@ public class YCIWorker implements Runnable {
 				Thread.sleep(YCIGlobal.LOOP_SLEEP_TIME);
 
 				DoJob();
-			} catch (InterruptedException e) {
+			} catch (InterruptedException | IOException e) {
 				e.printStackTrace();
 				m_logger.error("YCIWorker (ID=["+m_id+"]) quit unexpectedly, cause: "+e);
 				return;
@@ -51,11 +52,24 @@ public class YCIWorker implements Runnable {
 		m_logger.info("YCIWorker (ID="+m_id+") end.");
 	}
 
-	private void DoJob() throws InterruptedException {
+	private void DoJob() throws InterruptedException, IOException {
 		YCIJob job = m_workMgr.GetJob();
 		if ( job == null ) {
 			Thread.sleep(YCIGlobal.EXTRA_SLEEP_TIME);
 			return;
+		}
+
+		// 是否有匹配的策略？
+		if ( job.match_info != null ) {
+			// TODO: ...
+
+			// 备份文件
+			m_logger.info("Backup file \""+job.report_file.GetFilePath()+"\" to path: "+m_workMgr.GetBackupPath());
+			job.report_file.MoveTo(m_workMgr.GetBackupPath());
+		} else {
+			// 没有匹配的策略，文件挂起
+			m_logger.info("No match policy! Suspend file \""+job.report_file.GetFilePath()+"\" to path: "+m_workMgr.GetSuspendPath());
+			job.report_file.MoveTo(m_workMgr.GetSuspendPath());
 		}
 
 		// TODO: ...
@@ -88,6 +102,10 @@ public class YCIWorker implements Runnable {
 
 	public int GetID() {
 		return m_id;
+	}
+
+	public boolean IsThreadAlive() {
+		return m_thread.isAlive();
 	}
 
 }

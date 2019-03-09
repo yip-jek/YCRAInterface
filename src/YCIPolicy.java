@@ -87,14 +87,15 @@ public class YCIPolicy {
 		return m_desFields;
 	}
 
-	public boolean MatchFile(String file_name) {
+	public YCIMatchInfo MatchFile(String file_name) {
 		for ( YCIFileName fname : m_fileNames ) {
-			if ( fname.IsMatch(file_name) ) {
-				return true;
+			YCIMatchInfo info = fname.Match(file_name);
+			if ( info != null ) {
+				return info;
 			}
 		}
 
-		return false;
+		return null;
 	}
 
 }
