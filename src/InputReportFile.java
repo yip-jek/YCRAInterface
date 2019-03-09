@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.IOException;
 
 // 输入报表文件类
 public class InputReportFile {
@@ -11,7 +12,15 @@ public class InputReportFile {
 		m_backupPath = backup_path;
 	}
 
-	public void Backup() {
+	public void Backup() throws IOException {
+		final String BKFILE_PATH = m_backupPath + File.separator + GetFileName();
+		if ( !m_file.renameTo(new File(BKFILE_PATH)) ) {
+			throw new IOException("Backup file \""+GetFilePath()+"\" to \""+BKFILE_PATH+"\" failed!");
+		}
+	}
+
+	public String GetFilePath() {
+		return m_file.getPath();
 	}
 
 	public String GetFileName() {

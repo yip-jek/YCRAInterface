@@ -46,7 +46,7 @@ public class PolicyManager {
 
 	// 获取文件名匹配的策略
 	// 若没有对应的匹配策略，则return null
-	public YCIPolicy GetMatchPolicy(String file_name) {
+	public YCIPolicy GetMatch(String file_name) {
 		for ( YCIPolicy policy : m_policys ) {
 			if ( policy.MatchFile(file_name) ) {
 				return policy;

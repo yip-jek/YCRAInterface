@@ -16,30 +16,31 @@ public class YCIInput {
 	private LinkedBlockingQueue<InputReportFile> m_queFileList = null;
 
 	public YCIInput(YCIConfig cfg) throws IOException {
-		m_paths      = cfg.GetInputPaths();
-		m_backupPath = cfg.GetBackupPath();
+		m_paths = cfg.GetInputPaths();
 
+		SetBackupPath(cfg.GetBackupPath());
 		Init();
 	}
 
 	private void Init() throws IOException {
-		m_logger = LogManager.getLogger(Object.class);
+		m_logger      = LogManager.getLogger(Object.class);
+		m_queFileList = new LinkedBlockingQueue<InputReportFile>();
 
 		m_pathFiles = new File[m_paths.length];
 		for ( int i = 0; i < m_pathFiles.length; ++i ) {
 			File path_file = new File(m_paths[i]);
-			if ( !path_file.exists() ) {
-				throw new IOException("Non-existing path: "+m_paths[i]);
-			}
-			if ( !path_file.isDirectory() ) {
-				throw new IllegalArgumentException("Non-directory path: "+m_paths[i]);
-			}
+			YCIGlobal.CheckDirectoryFile(path_file);
 
 			m_pathFiles[i] = path_file;
 		}
 		m_logger.info("Input file path(s): "+m_pathFiles.length);
+	}
 
-		m_queFileList = new LinkedBlockingQueue<InputReportFile>();
+	private void SetBackupPath(String path) throws IOException {
+		File bk_path = new File(path);
+		YCIGlobal.CheckDirectoryFile(bk_path);
+
+		m_backupPath = bk_path.getPath();
 	}
 
 	public void TryGetFiles() {

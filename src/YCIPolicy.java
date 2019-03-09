@@ -13,8 +13,6 @@ public class YCIPolicy {
 	private static final String DES_FIELDS          = "des_fields";
 	private static final String DES_FIELD_SEPARATOR = ",";
 
-	private static final String PLACEHOLDER_REGION  = "\\[XX\\]";		// 占位符：地市
-
 	private PolicyManager m_policyMgr       = null;
 	private int           m_id              = 0;				// 策略ID
 	private YCIFileName[] m_fileNames       = null;
@@ -51,13 +49,13 @@ public class YCIPolicy {
 
 	private void GenerateFileName(String src_file) {
 		// 是否存在“地市占位符”？
-		if ( src_file.indexOf(PLACEHOLDER_REGION) >= 0 ) {
+		if ( src_file.indexOf(YCIFileName.PLACEHOLDER_REGION) >= 0 ) {
 			YCIRegion[] regions = m_policyMgr.GetRegions();
 
 			m_fileNames = new YCIFileName[regions.length];
 			for ( int i = 0; i < m_fileNames.length; ++i ) {
 				String city = regions[i].GetCity();
-				m_fileNames[i] = new YCIFileName(city, src_file.replaceAll(PLACEHOLDER_REGION, city));
+				m_fileNames[i] = new YCIFileName(city, YCIGlobal.ReplacePlaceholder(src_file, YCIFileName.PLACEHOLDER_REGION, city));
 			}
 		} else {		// 没有地市信息
 			m_fileNames    = new YCIFileName[1];

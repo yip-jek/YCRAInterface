@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
@@ -37,6 +38,17 @@ public class YCIGlobal {
 		}
 	}
 
+	// 是否为文件目录
+	public static void CheckDirectoryFile(File path) throws IOException {
+		if ( !path.exists() ) {
+			throw new IOException("Non-existing path: "+path.getPath());
+		}
+
+		if ( !path.isDirectory() ) {
+			throw new IllegalArgumentException("Non-directory path: "+path.getPath());
+		}
+	}
+
 	// 拆分并去除首尾空白符
 	public static String[] SplitTrim(String src, String regex, int limit) {
 		String[] src_strs = src.split(regex, limit);
@@ -47,6 +59,21 @@ public class YCIGlobal {
 		}
 
 		return des_strs;
+	}
+
+	// 替换点位符
+	// 点位符格式：[...]
+	public static String ReplacePlaceholder(String src, String placeholder, String replace) {
+		// 点位符格式是否正确？
+		if ( placeholder.charAt(0) != '[' || placeholder.charAt(placeholder.length()-1) != ']' ) {
+			throw new IllegalArgumentException("Invalid placeholder: "+placeholder);
+		}
+
+		StringBuilder str_buf = new StringBuilder(placeholder);
+		str_buf.insert(str_buf.length()-1, '\\');
+		str_buf.insert(0, '\\');
+
+		return src.replaceAll(str_buf.toString(), replace);
 	}
 
 }

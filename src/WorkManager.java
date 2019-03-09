@@ -76,8 +76,8 @@ public class WorkManager {
 		}
 
 		YCIJob job = new YCIJob();
+		job.policy      = m_policyMgr.GetMatch(report_file.GetFileName());
 		job.report_file = report_file;
-		job.policy      = m_policyMgr.GetMatchPolicy(report_file.GetFileName());
 		return job;
 	}
 
