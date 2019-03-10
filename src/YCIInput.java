@@ -42,7 +42,9 @@ public class YCIInput {
 				}
 			}
 
-			m_logger.info("[INPUT] Get file(s): "+m_queFileList.size());
+			if ( !m_queFileList.isEmpty() ) {
+				m_logger.info("[INPUT] Get file(s): "+m_queFileList.size());
+			}
 		}
 	}
 

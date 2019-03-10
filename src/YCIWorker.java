@@ -32,7 +32,7 @@ public class YCIWorker implements Runnable {
 
 		m_logger = LogManager.getLogger(Object.class);
 		m_logger.info("Create worker: ID = ["+GetID()+"]");
-		m_logger.info("YCIWorker (ID=["+GetID()+"]) connected the DB.");
+		m_logger.info("Worker [ID="+GetID()+"] connected the DB.");
 	}
 
 	@Override
@@ -44,12 +44,12 @@ public class YCIWorker implements Runnable {
 				DoJob();
 			} catch (InterruptedException | IOException e) {
 				e.printStackTrace();
-				m_logger.error("YCIWorker (ID=["+m_id+"]) quit unexpectedly, cause: "+e);
+				m_logger.error("Worker [ID="+GetID()+"] quit unexpectedly, cause: "+e);
 				return;
 			}
 		}
 
-		m_logger.info("YCIWorker (ID="+m_id+") end.");
+		m_logger.info("Worker [ID="+GetID()+"] end.");
 	}
 
 	private void DoJob() throws InterruptedException, IOException {
@@ -62,13 +62,19 @@ public class YCIWorker implements Runnable {
 		// 是否有匹配的策略？
 		if ( job.match_info != null ) {
 			// TODO: ...
+			job.report_file.Open(job.match_info.policy.GetSrcFileEncoding());
+			ReportFileData report_data = null;
+			while ( (report_data = job.report_file.ReadData()) != null ) {
+				;
+			}
+			job.report_file.Close();
 
 			// 备份文件
-			m_logger.info("Backup file \""+job.report_file.GetFilePath()+"\" to path: "+m_workMgr.GetBackupPath());
+			m_logger.info("[Worker ID="+GetID()+"] Backup file \""+job.report_file.GetFilePath()+"\" to path: "+m_workMgr.GetBackupPath());
 			job.report_file.MoveTo(m_workMgr.GetBackupPath());
 		} else {
 			// 没有匹配的策略，文件挂起
-			m_logger.info("No match policy! Suspend file \""+job.report_file.GetFilePath()+"\" to path: "+m_workMgr.GetSuspendPath());
+			m_logger.info("[Worker ID="+GetID()+"] No match policy! Suspend file \""+job.report_file.GetFilePath()+"\" to path: "+m_workMgr.GetSuspendPath());
 			job.report_file.MoveTo(m_workMgr.GetSuspendPath());
 		}
 
