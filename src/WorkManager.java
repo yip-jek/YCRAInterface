@@ -1,4 +1,3 @@
-import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -16,38 +15,36 @@ public class WorkManager {
 	private YCIInput          m_input          = null;
 	private String            m_backupPath     = null;
 	private String            m_suspendPath    = null;
-	private Connection        m_dbConn         = null;
+	private String            m_failPath       = null;
+	private Connection        m_conn         = null;
 	private String            m_sqlUpdJobState = null;
 	private YCIWorker[]       m_workers        = null;
 
 	public WorkManager(YCIConfig cfg, ConnectionFactory dbConnFactory, PolicyManager policyMgr, YCIInput input) throws SQLException, IOException {
 		m_cfg           = cfg;
 		m_dbConnFactory = dbConnFactory;
-		m_dbConn        = m_dbConnFactory.CreateConnection();
+		m_conn          = m_dbConnFactory.CreateConnection();
 		m_policyMgr     = policyMgr;
 		m_input         = input;
 
 		m_logger = LogManager.getLogger(Object.class);
 		m_logger.info("WorkManager connected the DB.");
 
-		SetBackupPath(m_cfg.GetBackupPath());
-		SetSuspendPath(m_cfg.GetSuspendPath());
+		m_backupPath  = YCIGlobal.SetFilePath(m_cfg.GetBackupPath());
+		m_suspendPath = YCIGlobal.SetFilePath(m_cfg.GetSuspendPath());
+		m_failPath    = YCIGlobal.SetFilePath(m_cfg.GetFailPath());
 		Init();
 	}
 
-	private void Init() {
+	private void Init() throws SQLException {
 		m_workers = new YCIWorker[m_cfg.GetWorkers()];
 
 		StringBuilder str = new StringBuilder();
 		str.append("UPDATE ").append(m_cfg.GetDesReportStateTab()).append(" SET ");
 		m_sqlUpdJobState = str.toString();
-	}
 
-	private void SetBackupPath(String path) throws IOException {
-		File bk_path = new File(path);
-		YCIGlobal.CheckDirectoryFile(bk_path);
-
-		m_backupPath = bk_path.getPath();
+		// 禁止自动提交
+		m_conn.setAutoCommit(false);
 	}
 
 	public String GetBackupPath() {
@@ -58,11 +55,8 @@ public class WorkManager {
 		return m_suspendPath;
 	}
 
-	private void SetSuspendPath(String path) throws IOException {
-		File sus_path = new File(path);
-		YCIGlobal.CheckDirectoryFile(sus_path);
-
-		m_suspendPath = sus_path.getPath();
+	public String GetFailPath() {
+		return m_failPath;
 	}
 
 	public void StartAll() throws SQLException {
@@ -122,10 +116,8 @@ public class WorkManager {
 			return null;
 		}
 
-		YCIJob job = new YCIJob();
-		job.match_info  = m_policyMgr.GetMatch(report_file.GetFileName());
-		job.report_file = report_file;
-		return job;
+		YCIMatchInfo info = m_policyMgr.GetMatch(report_file.GetFileName());
+		return new YCIJob(report_file, info);
 	}
 
 	// 工作任务

@@ -44,13 +44,9 @@ public class YCIFileName {
 		return original_filename;
 	}
 
-	public YCIMatchInfo Match(String file_name) {
+	public YCIMatchInfo Match(YCIPolicy policy, String file_name) {
 		if ( file_name.matches(m_fileRegex) ) {
-			YCIMatchInfo info = new YCIMatchInfo();
-			info.city = m_fnCity;
-			info.date = GetMatchDate(file_name);
-			info.seq  = GetMatchSeq(file_name);
-			return info;
+			return new YCIMatchInfo(policy, m_fnCity, GetMatchDate(file_name), GetMatchSeq(file_name));
 		}
 
 		return null;

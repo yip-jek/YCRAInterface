@@ -28,6 +28,7 @@ public class YCIConfig {
 	private static final String INPUT_PATH_PREFIX    = "INPUT.path_";
 	private static final String OUTPUT_BACKUP_PATH   = "OUTPUT.backup_path";
 	private static final String OUTPUT_SUSPEND_PATH  = "OUTPUT.suspend_path";
+	private static final String OUTPUT_FAIL_PATH     = "OUTPUT.fail_path";
 
 	private Properties m_propCfg        = null;
 	private int        m_workers        = 0;
@@ -50,6 +51,7 @@ public class YCIConfig {
 	private String[]   m_paths          = null;				// 输入路径
 	private String     m_backupPath     = null;				// 备份路径
 	private String     m_suspendPath    = null;				// 挂起路径
+	private String     m_failPath       = null;				// 失败路径
 
 	public YCIConfig(Properties prop) throws IOException {
 		m_propCfg = prop;
@@ -133,6 +135,7 @@ public class YCIConfig {
 	private void ReadOutputConfig() throws IOException {
 		m_backupPath  = YCIGlobal.ReadProperty(m_propCfg, OUTPUT_BACKUP_PATH);
 		m_suspendPath = YCIGlobal.ReadProperty(m_propCfg, OUTPUT_SUSPEND_PATH);
+		m_failPath    = YCIGlobal.ReadProperty(m_propCfg, OUTPUT_FAIL_PATH);
 	}
 
 	// 输出配置信息
@@ -177,6 +180,7 @@ public class YCIConfig {
 		// Output
 		logger.info("[CONFIG] "+OUTPUT_BACKUP_PATH+" = ["+m_backupPath+"]");
 		logger.info("[CONFIG] "+OUTPUT_SUSPEND_PATH+" = ["+m_suspendPath+"]");
+		logger.info("[CONFIG] "+OUTPUT_FAIL_PATH+" = ["+m_failPath+"]");
 	}
 
 	public int GetWorkers() {
@@ -263,6 +267,10 @@ public class YCIConfig {
 
 	public String GetSuspendPath() {
 		return m_suspendPath;
+	}
+
+	public String GetFailPath() {
+		return m_failPath;
 	}
 
 }

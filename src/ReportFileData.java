@@ -2,20 +2,26 @@
 // 报表数据类
 public class ReportFileData {
 
-	private String m_dataLine = null;
+	private String[] m_data = null;
 
-	public ReportFileData(String line) {
-		m_dataLine = line;
+	public ReportFileData(String line, String regex_separator) {
+		SplitData(line, regex_separator);
+	}
+
+	private void SplitData(String line, String regex_separator) {
+		m_data = YCIGlobal.SplitTrim(line, regex_separator, -1);
+	}
+
+	public boolean Verify(int column_size) {
+		return (m_data.length == column_size);
 	}
 
 	public int GetColumnSize() {
-		// TODO Auto-generated method stub
-		return 0;
+		return m_data.length;
 	}
 
 	public String GetColumnData(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		return m_data[index];
 	}
 
 }

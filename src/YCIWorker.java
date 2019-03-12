@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,23 +13,15 @@ public class YCIWorker implements Runnable {
 	private boolean       m_running   = false;
 	private WorkManager   m_workMgr   = null;
 	private int           m_id        = 0;
-//	private WorkerState   m_state     = WorkerState.INIT;
-	private Connection    m_dbConn    = null;
+	private Connection    m_conn    = null;
 
-//	// 状态
-//	public enum WorkerState {
-//		INIT,			// 初始状态
-//		START,			// 开始状态
-//		IDLE,			// 空闲状态
-//		BUSY,			// 忙碌状态
-//		STOP,			// 停止状态
-//		END				// 结束状态
-//	}
-
-	public YCIWorker(WorkManager workMgr, int id, Connection conn) {
+	public YCIWorker(WorkManager workMgr, int id, Connection conn) throws SQLException {
 		m_workMgr = workMgr;
 		m_id      = id;
-		m_dbConn  = conn;
+		m_conn    = conn;
+
+		// 禁止自动提交，进行事务操作
+		m_conn.setAutoCommit(false);
 
 		m_logger = LogManager.getLogger(Object.class);
 		m_logger.info("Create worker: ID = ["+GetID()+"]");
@@ -59,26 +52,39 @@ public class YCIWorker implements Runnable {
 			return;
 		}
 
-		// 是否有匹配的策略？
-		if ( job.match_info != null ) {
-			// TODO: ...
-			job.report_file.Open(job.match_info.policy.GetSrcFileEncoding());
-			ReportFileData report_data = null;
-			while ( (report_data = job.report_file.ReadData()) != null ) {
-				;
-			}
-			job.report_file.Close();
+		YCIJob.ResultType type        = null;
+		InputReportFile   report_file = job.GetReportFile();
 
-			// 备份文件
-			m_logger.info("[Worker ID="+GetID()+"] Backup file \""+job.report_file.GetFilePath()+"\" to path: "+m_workMgr.GetBackupPath());
-			job.report_file.MoveTo(m_workMgr.GetBackupPath());
+		// 是否有匹配的策略？
+		if ( job.HasMatchInfo() ) {
+			m_logger.info("[Worker ID="+GetID()+"] Handle file: "+report_file.GetFilePath());
+
+			try {
+				if ( job.IsReportFileEmpty() ) {
+					m_logger.warn("[Worker ID="+GetID()+"] Empty file: "+report_file.GetFilePath());
+				} else {
+					StoreData(job);
+				}
+
+				// 备份
+				type = YCIJob.ResultType.SUCCESS;
+				Backup(report_file);
+			} catch ( YCIException e ) {
+				e.printStackTrace();
+				m_logger.error("[Worker ID="+GetID()+"] "+e);
+
+				// 失败
+				type = YCIJob.ResultType.FAIL;
+				Fail(report_file);
+			}
 		} else {
 			// 没有匹配的策略，文件挂起
-			m_logger.info("[Worker ID="+GetID()+"] No match policy! Suspend file \""+job.report_file.GetFilePath()+"\" to path: "+m_workMgr.GetSuspendPath());
-			job.report_file.MoveTo(m_workMgr.GetSuspendPath());
+			m_logger.warn("[Worker ID="+GetID()+"] No match policy!");
+			type = YCIJob.ResultType.SUSPEND;
+			Suspend(report_file);
 		}
 
-		// TODO: ...
+		job.SetResult(type);
 		m_workMgr.FinishJob(job);
 	}
 
@@ -112,6 +118,49 @@ public class YCIWorker implements Runnable {
 
 	public boolean IsThreadAlive() {
 		return m_thread.isAlive();
+	}
+
+	private void StoreData(YCIJob job) throws YCIException, IOException {
+		InputReportFile  report_file  = job.GetReportFile();
+		ReportFileData[] report_datas = job.ReadFileData();
+		m_logger.info("[Worker ID="+GetID()+"] File \""+report_file.GetFilePath()+"\", read line(s): "+report_datas.length);
+
+		YCIDao dao = new YCIDao(m_conn, job.GetStoreSql());
+		try {
+			dao.StoreReportData(report_datas);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			m_logger.error("Worker [ID="+GetID()+"] "+e);
+
+			String       error = null;
+			SQLException next  = e.getNextException();
+			if ( next != null ) {
+				m_logger.error("Worker [ID="+GetID()+"] "+next);
+				error = next.toString();
+			} else {
+				error = e.toString();
+			}
+
+			throw new YCIException("Store report data failed! Cause SQLException: "+error);
+		}
+	}
+
+	// 备份
+	private void Backup(InputReportFile report_file) throws IOException {
+		m_logger.info("[Worker ID="+GetID()+"] Backup file \""+report_file.GetFilePath()+"\" to path: "+m_workMgr.GetBackupPath());
+		report_file.MoveTo(m_workMgr.GetBackupPath());
+	}
+
+	// 挂起
+	private void Suspend(InputReportFile report_file) throws IOException {
+		m_logger.warn("[Worker ID="+GetID()+"] Suspend file \""+report_file.GetFilePath()+"\" to path: "+m_workMgr.GetSuspendPath());
+		report_file.MoveTo(m_workMgr.GetSuspendPath());
+	}
+
+	// 失败
+	private void Fail(InputReportFile report_file) throws IOException {
+		m_logger.warn("[Worker ID="+GetID()+"] Suspend file \""+report_file.GetFilePath()+"\" to path: "+m_workMgr.GetFailPath());
+		report_file.MoveTo(m_workMgr.GetFailPath());
 	}
 
 }

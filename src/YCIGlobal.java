@@ -8,7 +8,7 @@ import java.util.Properties;
 
 public class YCIGlobal {
 
-	public static final String VERSION          = "Version 1.3.0";			// 版本
+	public static final String VERSION          = "Version 1.5.0";			// 版本
 	public static final int    LOOP_SLEEP_TIME  = 1000;						// 每一个循环的睡眠时间
 	public static final int    EXTRA_SLEEP_TIME = 60*1000;					// 额外的睡眠时间
 
@@ -38,8 +38,8 @@ public class YCIGlobal {
 		}
 	}
 
-	// 是否为文件目录
-	public static void CheckDirectoryFile(File path) throws IOException {
+	// 验证是否为文件目录
+	public static void VerifyDirectoryFile(File path) throws IOException {
 		if ( !path.exists() ) {
 			throw new IOException("Non-existing path: "+path.getPath());
 		}
@@ -47,6 +47,13 @@ public class YCIGlobal {
 		if ( !path.isDirectory() ) {
 			throw new IllegalArgumentException("Non-directory path: "+path.getPath());
 		}
+	}
+
+	// 设置文件目录
+	public static String SetFilePath(String path) throws IOException {
+		File file_path = new File(path);
+		VerifyDirectoryFile(file_path);
+		return file_path.getPath();
 	}
 
 	// 移动文件到指定目录
@@ -63,17 +70,22 @@ public class YCIGlobal {
 		String[] des_strs = new String[src_strs.length];
 
 		for ( int i = 0; i < src_strs.length; ++i ) {
-			des_strs[i] = new String(src_strs[i].trim());
+			des_strs[i] = src_strs[i].trim();
 		}
 
 		return des_strs;
+	}
+
+	// 是否为以'['与']'包围的 String
+	public static boolean IsSurroundWithBrackets(String s) {
+		return (s.charAt(0) == '[' && s.charAt(s.length()-1) == ']');
 	}
 
 	// 替换点位符
 	// 点位符格式：[...]
 	public static String ReplacePlaceholder(String src, String placeholder, String replace) {
 		// 点位符格式是否正确？
-		if ( placeholder.charAt(0) != '[' || placeholder.charAt(placeholder.length()-1) != ']' ) {
+		if ( !IsSurroundWithBrackets(placeholder) ) {
 			throw new IllegalArgumentException("Invalid placeholder: "+placeholder);
 		}
 

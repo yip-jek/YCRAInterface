@@ -27,7 +27,7 @@ public class YCIInput {
 		m_pathFiles = new File[m_paths.length];
 		for ( int i = 0; i < m_pathFiles.length; ++i ) {
 			File path_file = new File(m_paths[i]);
-			YCIGlobal.CheckDirectoryFile(path_file);
+			YCIGlobal.VerifyDirectoryFile(path_file);
 
 			m_pathFiles[i] = path_file;
 		}

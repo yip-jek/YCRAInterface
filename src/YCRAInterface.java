@@ -83,9 +83,10 @@ public class YCRAInterface {
 	// 载入策略信息
 	private void InitPolicy() throws FileNotFoundException, IOException, SQLException {
 		Connection  conn    = m_dbConnFactory.CreateConnection();
-		YCIRegion[] regions = YCIDao.FetchRegionInfo(conn, m_yciconfig.GetRegionSQL());
-		m_dbConnFactory.ReleaseConnection(conn);
+		YCIDao      dao     = new YCIDao(conn, m_yciconfig.GetRegionSQL());
+		YCIRegion[] regions = dao.FetchRegionInfo();
 		m_logger.info("Fetch region(s) size: "+regions.length);
+		m_dbConnFactory.ReleaseConnection(conn);
 
 		m_policyMgr = new PolicyManager(m_yciconfig.GetPolicy(), regions);
 	}
@@ -161,7 +162,8 @@ public class YCRAInterface {
 
 		try {
 			yci.Run();
-		} catch (IOException | InterruptedException | InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
+		} catch (IOException | InterruptedException | InstantiationException | IllegalAccessException
+			| ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 
 			logger = yci.GetLogger();
