@@ -12,8 +12,10 @@ public class YCIConfig {
 	private static final String DB_URL               = "DB.URL";
 	private static final String DB_USER              = "DB.User";
 	private static final String DB_PASSWORD          = "DB.Password";
+	private static final String DB_MAX_COMMIT        = "DB.MaxCommit";
 	private static final String DES_REGION_SQL       = "DES.RegionSQL";
-	private static final String DES_REPORT_STATE_TAB = "DES.ReportStateTab";
+	private static final String DES_TAB_NAME_SQL     = "DES.ReportTabNameSQL";
+	private static final String DES_TAB_REPORT_STATE = "DES.TabReportState";
 //	private static final String HDFS_HOST            = "HDFS.host";
 //	private static final String HDFS_PORT            = "HDFS.port";
 //	private static final String HDFS_PATH            = "HDFS.path";
@@ -36,7 +38,9 @@ public class YCIConfig {
 	private String     m_dbURL          = null;				// 数据库URL
 	private String     m_dbUsr          = null;				// 数据库用户名
 	private String     m_dbPwd          = null;				// 数据库密码
+	private int        m_maxCommit      = 0;				// 最大提交数
 	private String     m_sqlRegion      = null;				// 地市信息SQL语句
+	private String     m_sqlTabName     = null;				// 报表名称SQL语句
 	private String     m_tabReportState = null;				// 报表状态表
 //	private String     m_hdfsHost       = null;				// HDFS主机
 //	private int        m_hdfsPort       = 0;				// HDFS端口
@@ -69,11 +73,7 @@ public class YCIConfig {
 	}
 
 	private void ReadWorkConfig() throws IOException {
-		final String CFG_WORKERS = YCIGlobal.ReadProperty(m_propCfg, YCI_WORKERS);
-		m_workers = Integer.parseInt(CFG_WORKERS);
-		if ( m_workers <= 0 ) {
-			throw new IOException("Invalid number of worker process in configuration \""+YCI_WORKERS+"\": "+m_workers);
-		}
+		m_workers = YCIGlobal.ReadUIntProperty(m_propCfg, YCI_WORKERS);
 	}
 
 	// 读取数据库配置
@@ -82,11 +82,16 @@ public class YCIConfig {
 		m_dbURL    = YCIGlobal.ReadProperty(m_propCfg, DB_URL);
 		m_dbUsr    = YCIGlobal.ReadProperty(m_propCfg, DB_USER);
 		m_dbPwd    = YCIGlobal.ReadProperty(m_propCfg, DB_PASSWORD);
+
+		if ( m_propCfg.containsKey(DB_MAX_COMMIT) ) {
+			m_maxCommit = YCIGlobal.ReadUIntProperty(m_propCfg, DB_MAX_COMMIT);
+		}
 	}
 
 	private void ReadDesConfig() throws IOException {
 		m_sqlRegion      = YCIGlobal.ReadProperty(m_propCfg, DES_REGION_SQL);
-		m_tabReportState = YCIGlobal.ReadProperty(m_propCfg, DES_REPORT_STATE_TAB);
+		m_sqlTabName     = YCIGlobal.ReadProperty(m_propCfg, DES_TAB_NAME_SQL);
+		m_tabReportState = YCIGlobal.ReadProperty(m_propCfg, DES_TAB_REPORT_STATE);
 	}
 
 //	// 读取HDFS配置
@@ -119,11 +124,7 @@ public class YCIConfig {
 
 	// 读取输入路径配置
 	private void ReadInputConfig() throws IOException {
-		final String CFG_PATH_SIZE = YCIGlobal.ReadProperty(m_propCfg, INPUT_PATH_SIZE);
-		final int    PATH_SIZE     = Integer.parseInt(CFG_PATH_SIZE);
-		if ( PATH_SIZE <= 0 ) {
-			throw new IOException("Invalid number of input path size in configuration \""+INPUT_PATH_SIZE+"\": "+PATH_SIZE);
-		}
+		final int PATH_SIZE = YCIGlobal.ReadUIntProperty(m_propCfg, INPUT_PATH_SIZE);
 
 		m_paths = new String[PATH_SIZE];
 		for ( int i = 0; i < PATH_SIZE; ++i ) {
@@ -151,9 +152,14 @@ public class YCIConfig {
 		logger.info("[CONFIG] "+DB_USER+"     = ["+m_dbUsr+"]");
 		logger.info("[CONFIG] "+DB_PASSWORD+" = ["+m_dbPwd+"]");
 
+		if ( m_propCfg.containsKey(DB_MAX_COMMIT) ) {
+			logger.info("[CONFIG] "+DB_MAX_COMMIT+" = ["+m_maxCommit+"]");
+		}
+
 		// DES
 		logger.info("[CONFIG] "+DES_REGION_SQL+" = ["+m_sqlRegion+"]");
-		logger.info("[CONFIG] "+DES_REPORT_STATE_TAB+" = ["+m_tabReportState+"]");
+		logger.info("[CONFIG] "+DES_TAB_NAME_SQL+" = ["+m_sqlTabName+"]");
+		logger.info("[CONFIG] "+DES_TAB_REPORT_STATE+" = ["+m_tabReportState+"]");
 
 //		// HDFS
 //		logger.info("[CONFIG] "+HDFS_HOST+" = ["+m_hdfsHost+"]");
@@ -206,6 +212,11 @@ public class YCIConfig {
 		return m_dbPwd;
 	}
 
+	// 获取最大提交数
+	public int GetMaxCommit() {
+		return m_maxCommit;
+	}
+
 //	// 获取HDFS主机
 //	public String GetHdfsHost() {
 //		return m_hdfsHost;
@@ -245,11 +256,15 @@ public class YCIConfig {
 //		return m_hiveLocation;
 //	}
 
-	public String GetRegionSQL() {
+	public String GetRegionSql() {
 		return m_sqlRegion;
 	}
 
-	public String GetDesReportStateTab() {
+	public String GetReportTabNameSql() {
+		return m_sqlTabName;
+	}
+
+	public String GetTabReportState() {
 		return m_tabReportState;
 	}
 

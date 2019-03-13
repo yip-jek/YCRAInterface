@@ -3,6 +3,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 
 // 数据库访问类
 public class YCIDao {
@@ -18,16 +19,21 @@ public class YCIDao {
 		m_sql        = sql;
 	}
 
-	public void SetMaxCommit(int max) {
+	public boolean SetMaxCommit(int max) {
 		if ( max > 0 ) {
 			m_maxCommit = max;
-		} else {
-			throw new IllegalArgumentException("[DAO] Set max commit failed! Invalid max commit: "+max);
+			return true;
 		}
+
+		return false;
+	}
+
+	public void SetSql(String sql) {
+		m_sql = sql;
 	}
 
 	// 获取地市信息
-	public YCIRegion[] FetchRegionInfo() throws SQLException {
+	public YCIRegion[] GetRegionInfo() throws SQLException {
 		Statement stat = m_connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		ResultSet rs   = stat.executeQuery(m_sql);
 
@@ -45,6 +51,20 @@ public class YCIDao {
 
 		stat.close();
 		return regions;
+	}
+
+	// 获取英文表名与中文表名的对应关系Map
+	public HashMap<String, String> GetReportTabName() throws SQLException {
+		Statement stat = m_connection.createStatement();
+		ResultSet rs   = stat.executeQuery(m_sql);
+
+		HashMap<String, String> map_tabname = new HashMap<String, String>();
+		while ( rs.next() ) {
+			map_tabname.put(rs.getString(1), rs.getString(2));
+		}
+
+		stat.close();
+		return map_tabname;
 	}
 
 	// 入库报表数据
@@ -78,6 +98,21 @@ public class YCIDao {
 		}
 
 		prepare_stat.close();
+	}
+
+	// 报表状态记录是否已存在？
+	public boolean HasReportState(YCIReportState state) {
+		return true;
+	}
+
+	// 更新报表状态
+	public void UpdateReportState(YCIReportState state) {
+		;
+	}
+
+	// 插入报表状态
+	public void InsertReportState(YCIReportState state) {
+		;
 	}
 
 }

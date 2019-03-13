@@ -8,20 +8,21 @@ import org.apache.logging.log4j.Logger;
 // 工作类
 public class YCIWorker implements Runnable {
 
-	private Logger        m_logger    = null;
-	private Thread        m_thread    = null;
-	private boolean       m_running   = false;
-	private WorkManager   m_workMgr   = null;
-	private int           m_id        = 0;
-	private Connection    m_conn    = null;
+	private Logger      m_logger  = null;
+	private Thread      m_thread  = null;
+	private boolean     m_running = false;
+	private WorkManager m_workMgr = null;
+	private int         m_id      = 0;
+	private YCIDao      m_dao     = null;
 
 	public YCIWorker(WorkManager workMgr, int id, Connection conn) throws SQLException {
 		m_workMgr = workMgr;
 		m_id      = id;
-		m_conn    = conn;
 
 		// 禁止自动提交，进行事务操作
-		m_conn.setAutoCommit(false);
+		conn.setAutoCommit(false);
+		m_dao = new YCIDao(conn, "");
+		m_dao.SetMaxCommit(m_workMgr.GetMaxCommit());
 
 		m_logger = LogManager.getLogger(Object.class);
 		m_logger.info("Create worker: ID = ["+GetID()+"]");
@@ -125,9 +126,9 @@ public class YCIWorker implements Runnable {
 		ReportFileData[] report_datas = job.ReadFileData();
 		m_logger.info("[Worker ID="+GetID()+"] File \""+report_file.GetFilePath()+"\", read line(s): "+report_datas.length);
 
-		YCIDao dao = new YCIDao(m_conn, job.GetStoreSql());
+		m_dao.SetSql(job.GetStoreSql());
 		try {
-			dao.StoreReportData(report_datas);
+			m_dao.StoreReportData(report_datas);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			m_logger.error("Worker [ID="+GetID()+"] "+e);

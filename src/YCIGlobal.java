@@ -8,7 +8,7 @@ import java.util.Properties;
 
 public class YCIGlobal {
 
-	public static final String VERSION          = "Version 1.5.0";			// 版本
+	public static final String VERSION          = "Version 1.6.0";			// 版本
 	public static final int    LOOP_SLEEP_TIME  = 1000;						// 每一个循环的睡眠时间
 	public static final int    EXTRA_SLEEP_TIME = 60*1000;					// 额外的睡眠时间
 
@@ -33,9 +33,19 @@ public class YCIGlobal {
 		final String PROP_VAL = prop.getProperty(key);
 		if ( PROP_VAL == null || PROP_VAL.isEmpty() ) {
 			throw new IOException("Configuration item \""+key+"\" not configured correctly!");
-		} else {
-			return PROP_VAL;
 		}
+
+		return PROP_VAL;
+	}
+
+	public static int ReadUIntProperty(Properties prop, String key) throws IOException {
+		final String INT_VAL = ReadProperty(prop, key);
+		int val = Integer.parseInt(INT_VAL);
+		if ( val <= 0 ) {
+			throw new IOException("Invalid number property in configuration \""+key+"\": "+INT_VAL);
+		}
+
+		return val;
 	}
 
 	// 验证是否为文件目录

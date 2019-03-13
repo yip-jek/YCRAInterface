@@ -27,10 +27,7 @@ public class PolicyManager {
 		prop_policy.load(new FileInputStream(policy_file));
 
 		// 获取总策略size
-		final int TOTAL = Integer.parseInt(YCIGlobal.ReadProperty(prop_policy, TOTAL_POLICY));
-		if ( TOTAL <= 0 ) {
-			throw new IOException("Invalid number of policy in configuration \""+TOTAL_POLICY+"\": "+TOTAL);
-		}
+		final int TOTAL = YCIGlobal.ReadUIntProperty(prop_policy, TOTAL_POLICY);
 		m_logger.info("TOTAL_POLICY = ["+TOTAL+"]");
 
 		m_policys = new YCIPolicy[TOTAL];

@@ -38,10 +38,7 @@ public class YCIPolicy {
 		m_srcRegexSeparator = YCIGlobal.ReadProperty(prop, POLICY_WITH_ID+"."+SRC_REGEX_SEPARATOR);
 		m_desTable          = YCIGlobal.ReadProperty(prop, POLICY_WITH_ID+"."+DES_TABLE);
 
-		m_srcColumnSize = Integer.parseInt(YCIGlobal.ReadProperty(prop, POLICY_WITH_ID+"."+SRC_COLUMN_SIZE));
-		if ( m_srcColumnSize <= 0 ) {
-			throw new IOException("Invalid size of column in configuration \""+POLICY_WITH_ID+"."+SRC_COLUMN_SIZE+"\": "+m_srcColumnSize);
-		}
+		m_srcColumnSize = YCIGlobal.ReadUIntProperty(prop, POLICY_WITH_ID+"."+SRC_COLUMN_SIZE);
 
 		final String FIELDS = YCIGlobal.ReadProperty(prop, POLICY_WITH_ID+"."+DES_FIELDS);
 		m_desFields = YCIGlobal.SplitTrim(FIELDS, DES_FIELD_SEPARATOR, 0);

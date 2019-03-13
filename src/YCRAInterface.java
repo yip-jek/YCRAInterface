@@ -83,8 +83,8 @@ public class YCRAInterface {
 	// 载入策略信息
 	private void InitPolicy() throws FileNotFoundException, IOException, SQLException {
 		Connection  conn    = m_dbConnFactory.CreateConnection();
-		YCIDao      dao     = new YCIDao(conn, m_yciconfig.GetRegionSQL());
-		YCIRegion[] regions = dao.FetchRegionInfo();
+		YCIDao      dao     = new YCIDao(conn, m_yciconfig.GetRegionSql());
+		YCIRegion[] regions = dao.GetRegionInfo();
 		m_logger.info("Fetch region(s) size: "+regions.length);
 		m_dbConnFactory.ReleaseConnection(conn);
 
