@@ -50,7 +50,7 @@ public class WorkManager {
 	}
 
 	private void ValidateConnection(Connection conn) throws SQLException {
-		if ( conn.isValid(0) ) {
+		if ( conn.isClosed() ) {
 			m_logger.info("WorkManager connected the DB.");
 
 			// 禁止自动提交
@@ -162,12 +162,12 @@ public class WorkManager {
 	}
 
 	// 工作任务
-	public void FinishJob(YCIJob job) {
+	public void FinishJob(YCIJob job) throws SQLException {
 		UpdateState(new YCIReportState(job));
 	}
 
 	// 更新状态
-	private synchronized void UpdateState(YCIReportState state) {
+	private synchronized void UpdateState(YCIReportState state) throws SQLException {
 		m_dao.SetSql(m_sqlSelState);
 		if ( m_dao.HasReportState(state) ) {
 			m_dao.SetSql(m_sqlUpdState);

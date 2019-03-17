@@ -15,4 +15,40 @@ public class YCIReportState {
 	public YCIReportState(YCIJob job) {
 	}
 
+	public String GetImportTime() {
+		return m_importTime;
+	}
+
+	public String GetTabName_CN() {
+		return m_cnTabName;
+	}
+
+	public String GetTabName_EN() {
+		return m_enTabName;
+	}
+
+	public String GetStatus() {
+		return m_status;
+	}
+
+	public String GetDate() {
+		return m_date;
+	}
+
+	public String GetCity() {
+		return m_city;
+	}
+
+	public String GetNum() {
+		return m_num;
+	}
+
+	public String GetRecords() {
+		return m_records;
+	}
+
+	public String GetDescribe() {
+		return m_describe;
+	}
+
 }

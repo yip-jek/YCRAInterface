@@ -32,7 +32,7 @@ public class YCIWorker implements Runnable {
 	}
 
 	private void ValidateConnection(Connection conn) throws SQLException {
-		if ( conn.isValid(0) ) {
+		if ( conn.isClosed() ) {
 			m_logger.info("Worker [ID="+GetID()+"] connected the DB.");
 
 			// 禁止自动提交，进行事务操作
@@ -49,7 +49,7 @@ public class YCIWorker implements Runnable {
 				Thread.sleep(YCIGlobal.LOOP_SLEEP_TIME);
 
 				DoJob();
-			} catch (InterruptedException | IOException e) {
+			} catch (InterruptedException | IOException | SQLException e) {
 				e.printStackTrace();
 				m_logger.error("Worker [ID="+GetID()+"] quit unexpectedly, cause: "+e);
 				return;
@@ -59,7 +59,7 @@ public class YCIWorker implements Runnable {
 		m_logger.info("Worker [ID="+GetID()+"] end.");
 	}
 
-	private void DoJob() throws InterruptedException, IOException {
+	private void DoJob() throws InterruptedException, IOException, SQLException {
 		YCIJob job = m_workMgr.GetJob();
 		if ( job == null ) {
 			Thread.sleep(YCIGlobal.EXTRA_SLEEP_TIME);

@@ -69,7 +69,7 @@ public class YCIDao {
 
 	// 入库报表数据
 	public void StoreReportData(ReportFileData[] datas) throws SQLException {
-		PreparedStatement prepare_stat = m_connection.prepareStatement(m_sql);
+		PreparedStatement p_stat = m_connection.prepareStatement(m_sql);
 
 		int counter = 0;
 		ReportFileData report_dat = null;
@@ -78,41 +78,84 @@ public class YCIDao {
 			report_dat = datas[i];
 
 			for ( int j = 0; j < report_dat.GetColumnSize(); ++j ) {
-				prepare_stat.setObject(j+1, report_dat.GetColumnData(j));
+				p_stat.setObject(j+1, report_dat.GetColumnData(j));
 			}
-			prepare_stat.addBatch();
+			p_stat.addBatch();
 
 			// 是否达到最大提交数？
 			if ( ++counter == m_maxCommit ) {
 				counter = 0;
 
-				prepare_stat.executeBatch();
+				p_stat.executeBatch();
 				m_connection.commit();
 			}
 		}
 
 		// 最后再提交一次
 		if ( counter > 0 ) {
-			prepare_stat.executeBatch();
+			p_stat.executeBatch();
 			m_connection.commit();
 		}
 
-		prepare_stat.close();
+		p_stat.close();
 	}
 
 	// 报表状态记录是否已存在？
-	public boolean HasReportState(YCIReportState state) {
-		return true;
+	public boolean HasReportState(YCIReportState state) throws SQLException {
+		PreparedStatement p_stat = m_connection.prepareStatement(m_sql);
+		p_stat.setObject(1, state.GetTabName_EN());
+		p_stat.setObject(2, state.GetDate());
+		p_stat.setObject(3, state.GetCity());
+
+		ResultSet rs = p_stat.executeQuery();
+
+		boolean has_state = false;
+		while ( rs.next() ) {
+			has_state = (rs.getInt(1) > 0);
+		}
+
+		p_stat.close();
+		return has_state;
 	}
 
 	// 更新报表状态
-	public void UpdateReportState(YCIReportState state) {
-		;
+	public void UpdateReportState(YCIReportState state) throws SQLException {
+		PreparedStatement p_stat = m_connection.prepareStatement(m_sql);
+
+		int index = 0;
+		p_stat.setObject(++index, state.GetImportTime());
+		p_stat.setObject(++index, state.GetTabName_CN());
+		p_stat.setObject(++index, state.GetStatus());
+		p_stat.setObject(++index, state.GetNum());
+		p_stat.setObject(++index, state.GetRecords());
+		p_stat.setObject(++index, state.GetDescribe());
+		p_stat.setObject(++index, state.GetTabName_EN());
+		p_stat.setObject(++index, state.GetDate());
+		p_stat.setObject(++index, state.GetCity());
+		p_stat.executeUpdate();
+
+		m_connection.commit();
+		p_stat.close();
 	}
 
 	// 插入报表状态
-	public void InsertReportState(YCIReportState state) {
-		;
+	public void InsertReportState(YCIReportState state) throws SQLException {
+		PreparedStatement p_stat = m_connection.prepareStatement(m_sql);
+
+		int index = 0;
+		p_stat.setObject(++index, state.GetImportTime());
+		p_stat.setObject(++index, state.GetTabName_CN());
+		p_stat.setObject(++index, state.GetTabName_EN());
+		p_stat.setObject(++index, state.GetStatus());
+		p_stat.setObject(++index, state.GetDate());
+		p_stat.setObject(++index, state.GetCity());
+		p_stat.setObject(++index, state.GetNum());
+		p_stat.setObject(++index, state.GetRecords());
+		p_stat.setObject(++index, state.GetDescribe());
+		p_stat.executeUpdate();
+
+		m_connection.commit();
+		p_stat.close();
 	}
 
 }
