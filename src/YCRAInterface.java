@@ -157,8 +157,7 @@ public class YCRAInterface {
 			return;
 		}
 
-		Logger        logger = null;
-		YCRAInterface yci    = new YCRAInterface(args[0], args[1]);
+		YCRAInterface yci = new YCRAInterface(args[0], args[1]);
 
 		try {
 			yci.Run();
@@ -166,16 +165,21 @@ public class YCRAInterface {
 			| ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 
-			logger = yci.GetLogger();
-			if ( logger != null ) {
-				logger.error(e);
+			if ( yci.GetLogger() != null ) {
+				yci.GetLogger().error(e);
+			}
+			return;
+		} catch ( Exception e ) {
+			e.printStackTrace();
+
+			if ( yci.GetLogger() != null ) {
+				yci.GetLogger().error(e);
 			}
 			return;
 		}
 
-		logger = yci.GetLogger();
-		if ( logger != null ) {
-			logger.info(YCRAInterface.class.getName()+" quit!");
+		if ( yci.GetLogger() != null ) {
+			yci.GetLogger().info(YCRAInterface.class.getName()+" quit!");
 		}
 	}
 }

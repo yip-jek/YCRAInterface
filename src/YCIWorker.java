@@ -19,14 +19,27 @@ public class YCIWorker implements Runnable {
 		m_workMgr = workMgr;
 		m_id      = id;
 
-		// 禁止自动提交，进行事务操作
-		conn.setAutoCommit(false);
-		m_dao = new YCIDao(conn, "");
-		m_dao.SetMaxCommit(m_workMgr.GetMaxCommit());
+		Init(conn);
+	}
 
+	private void Init(Connection conn) throws SQLException {
 		m_logger = LogManager.getLogger(Object.class);
 		m_logger.info("Create worker: ID = ["+GetID()+"]");
-		m_logger.info("Worker [ID="+GetID()+"] connected the DB.");
+
+		ValidateConnection(conn);
+		m_dao = new YCIDao(conn, "");
+		m_dao.SetMaxCommit(m_workMgr.GetMaxCommit());
+	}
+
+	private void ValidateConnection(Connection conn) throws SQLException {
+		if ( conn.isValid(0) ) {
+			m_logger.info("Worker [ID="+GetID()+"] connected the DB.");
+
+			// 禁止自动提交，进行事务操作
+			conn.setAutoCommit(false);
+		} else {
+			throw new SQLException("The DB connection of Worker [ID="+GetID()+"] is invalid!");
+		}
 	}
 
 	@Override

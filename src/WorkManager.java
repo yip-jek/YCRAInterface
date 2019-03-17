@@ -30,24 +30,34 @@ public class WorkManager {
 		m_policyMgr     = policyMgr;
 		m_input         = input;
 
-		Init(m_dbConnFactory.CreateConnection());
+		Init();
 	}
 
-	private void Init(Connection conn) throws SQLException, IOException {
+	private void Init() throws SQLException, IOException {
 		m_logger = LogManager.getLogger(Object.class);
-		m_logger.info("WorkManager connected the DB.");
 
 		m_backupPath  = YCIGlobal.SetFilePath(m_cfg.GetBackupPath());
 		m_suspendPath = YCIGlobal.SetFilePath(m_cfg.GetSuspendPath());
 		m_failPath    = YCIGlobal.SetFilePath(m_cfg.GetFailPath());
 		m_workers     = new YCIWorker[m_cfg.GetWorkers()];
-		m_dao         = new YCIDao(conn, m_cfg.GetReportTabNameSql());
-		m_mapTabName  = m_dao.GetReportTabName();
 
-		// 禁止自动提交
-		conn.setAutoCommit(false);
+		Connection conn = m_dbConnFactory.CreateConnection();
+		m_dao           = new YCIDao(conn, m_cfg.GetReportTabNameSql());
+		m_mapTabName    = m_dao.GetReportTabName();
+		ValidateConnection(conn);
 
 		InitSql();
+	}
+
+	private void ValidateConnection(Connection conn) throws SQLException {
+		if ( conn.isValid(0) ) {
+			m_logger.info("WorkManager connected the DB.");
+
+			// 禁止自动提交
+			conn.setAutoCommit(false);
+		} else {
+			throw new SQLException("The DB connection of workmanager is invalid!");
+		}
 	}
 
 	private void InitSql() {
@@ -55,13 +65,15 @@ public class WorkManager {
 		StringBuilder buffer = new StringBuilder("select count(0) from ");
 		buffer.append(m_cfg.GetTabReportState()).append(" where TABLE_NAME = ? and DATETIME = ? and CITY = ?");
 		m_sqlSelState = buffer.toString();
+		m_logger.info("[WorkManager] Select state SQL: "+m_sqlSelState);
 
 		// SQL: update
 		buffer.setLength(0);
-		buffer.append("update ").append(m_cfg.GetTabReportState()).append("set IMPORT_TIME = ?");
+		buffer.append("update ").append(m_cfg.GetTabReportState()).append(" set IMPORT_TIME = ?");
 		buffer.append(", EXCEL_NAME = ?, STAUTS = ?, NUM = ?, RECORD_NUM = ?, DESCRIBE = ?");
 		buffer.append(" where TABLE_NAME = ? and DATETIME = ? and CITY = ?");
 		m_sqlUpdState = buffer.toString();
+		m_logger.info("[WorkManager] Update state SQL: "+m_sqlUpdState);
 
 		// SQL: insert
 		buffer.setLength(0);
@@ -69,6 +81,7 @@ public class WorkManager {
 		buffer.append("EXCEL_NAME, TABLE_NAME, STAUTS, DATETIME, CITY, NUM, RECORD_NUM, DESCRIBE)");
 		buffer.append(" values(?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		m_sqlInsState = buffer.toString();
+		m_logger.info("[WorkManager] Insert state SQL: "+m_sqlInsState);
 	}
 
 	public int GetMaxCommit() {
@@ -112,7 +125,7 @@ public class WorkManager {
 	public void Wait2StopAll() throws InterruptedException {
 		for ( YCIWorker worker : m_workers ) {
 			worker.Wait2Stop();
-			m_logger.info("Worker [ID="+worker.GetID()+"] is stopped!");
+			m_logger.info("Worker [ID="+worker.GetID()+"] stopped!");
 		}
 
 		m_logger.info("All workers stopped.");
@@ -150,11 +163,11 @@ public class WorkManager {
 
 	// 工作任务
 	public void FinishJob(YCIJob job) {
-		UpdateReportState(new YCIReportState(job));
+		UpdateState(new YCIReportState(job));
 	}
 
-	// 更新报表状态
-	private synchronized void UpdateReportState(YCIReportState state) {
+	// 更新状态
+	private synchronized void UpdateState(YCIReportState state) {
 		m_dao.SetSql(m_sqlSelState);
 		if ( m_dao.HasReportState(state) ) {
 			m_dao.SetSql(m_sqlUpdState);
