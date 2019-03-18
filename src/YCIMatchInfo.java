@@ -92,7 +92,7 @@ public class YCIMatchInfo {
 		if ( fields[0] == FIELD_CURRENT_TIME ) {
 			return ("'"+YCIGlobal.CurrentDateTime(fields[1])+"'");
 		} else {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Unsupported field format: "+fmt);
 		}
 	}
 

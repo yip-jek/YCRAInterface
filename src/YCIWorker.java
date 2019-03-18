@@ -27,18 +27,18 @@ public class YCIWorker implements Runnable {
 		m_logger.info("Create worker: ID = ["+GetID()+"]");
 
 		ValidateConnection(conn);
-		m_dao = new YCIDao(conn, "");
+		m_dao = new YCIDao(conn);
 		m_dao.SetMaxCommit(m_workMgr.GetMaxCommit());
 	}
 
 	private void ValidateConnection(Connection conn) throws SQLException {
 		if ( conn.isClosed() ) {
+			throw new SQLException("The DB connection of Worker [ID="+GetID()+"] is closed!");
+		} else {
 			m_logger.info("Worker [ID="+GetID()+"] connected the DB.");
 
 			// 禁止自动提交，进行事务操作
 			conn.setAutoCommit(false);
-		} else {
-			throw new SQLException("The DB connection of Worker [ID="+GetID()+"] is invalid!");
 		}
 	}
 
@@ -139,12 +139,20 @@ public class YCIWorker implements Runnable {
 		ReportFileData[] report_datas = job.ReadFileData();
 		m_logger.info("[Worker ID="+GetID()+"] File \""+report_file.GetFilePath()+"\", read line(s): "+report_datas.length);
 
-		m_dao.SetSql(job.GetStoreSql());
+		m_dao.SetSql(job.GetMatchInfo().CreateStoreSql());
 		try {
 			m_dao.StoreReportData(report_datas);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			m_logger.error("Worker [ID="+GetID()+"] "+e);
+
+			m_logger.warn("Worker [ID="+GetID()+"]: DB rolling back ...");
+			try {
+				m_dao.RollBack();
+			} catch ( SQLException re ) {
+				re.printStackTrace();
+				m_logger.error("Worker [ID="+GetID()+"] Roll back failed: "+re);
+			}
 
 			String       error = null;
 			SQLException next  = e.getNextException();

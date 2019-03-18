@@ -15,6 +15,7 @@ public class YCIPolicy {
 
 	private PolicyManager m_policyMgr         = null;
 	private int           m_id                = 0;				// 策略ID
+	private String        m_srcFile           = null;			// 源文件名
 	private YCIFileName[] m_fileNames         = null;
 	private String        m_srcFileEncoding   = null;			// 源文件编码格式
 	private int           m_srcColumnSize     = 0;				// 源文件数据列数
@@ -32,7 +33,8 @@ public class YCIPolicy {
 	private void Load(Properties prop) throws IOException {
 		final String POLICY_WITH_ID = PREFIX_POLICY + m_id;
 
-		GenerateFileName(YCIGlobal.ReadProperty(prop, POLICY_WITH_ID+"."+SRC_FILE));
+		m_srcFile = YCIGlobal.ReadProperty(prop, POLICY_WITH_ID+"."+SRC_FILE);
+		GenerateFileName(m_srcFile);
 
 		m_srcFileEncoding   = YCIGlobal.ReadProperty(prop, POLICY_WITH_ID+"."+SRC_FILE_ENCODING);
 		m_srcRegexSeparator = YCIGlobal.ReadProperty(prop, POLICY_WITH_ID+"."+SRC_REGEX_SEPARATOR);
@@ -51,7 +53,7 @@ public class YCIPolicy {
 
 			m_fileNames = new YCIFileName[regions.length];
 			for ( int i = 0; i < m_fileNames.length; ++i ) {
-				String city = regions[i].GetCity();
+				String city = regions[i].GetCityCode();
 				m_fileNames[i] = new YCIFileName(city, YCIGlobal.ReplacePlaceholder(src_file, YCIFileName.PLACEHOLDER_REGION, city));
 			}
 		} else {		// 没有地市信息
@@ -62,6 +64,10 @@ public class YCIPolicy {
 
 	public int GetID() {
 		return m_id;
+	}
+
+	public String GetSrcFile() {
+		return m_srcFile;
 	}
 
 	public String GetSrcFileEncoding() {

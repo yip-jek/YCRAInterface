@@ -140,7 +140,7 @@ public class YCIConfig {
 	}
 
 	// 输出配置信息
-	private void ShowConfig() {
+	public void ShowConfig() {
 		Logger logger = LogManager.getLogger(Object.class);
 
 		// Workers

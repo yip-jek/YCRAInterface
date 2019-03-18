@@ -34,6 +34,11 @@ public class InputReportFile {
 	public long GetFileLength() {
 		return m_file.length();
 	}
+
+	public int GetLintCount() {
+		return m_lineCount;
+	}
+
 	public int GetLineNumber() throws IOException {
 		LineNumberReader line_reader = null;
 		line_reader = new LineNumberReader(new FileReader(m_file));

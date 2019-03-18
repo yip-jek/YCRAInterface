@@ -24,6 +24,10 @@ public class WorkManager {
 	private YCIDao                  m_dao           = null;
 	private YCIWorker[]             m_workers       = null;
 
+	private long    m_currMilliTime    = 0;			// 当前毫秒数
+	private Integer m_jobGetCounter    = 0;			// 获取Job计数
+	private Integer m_jobFinishCounter = 0;			// 完成Job计数
+
 	public WorkManager(YCIConfig cfg, ConnectionFactory dbConnFactory, PolicyManager policyMgr, YCIInput input) throws SQLException, IOException {
 		m_cfg           = cfg;
 		m_dbConnFactory = dbConnFactory;
@@ -41,22 +45,29 @@ public class WorkManager {
 		m_failPath    = YCIGlobal.SetFilePath(m_cfg.GetFailPath());
 		m_workers     = new YCIWorker[m_cfg.GetWorkers()];
 
+		InitDao();
+		InitSql();
+
+		m_currMilliTime = YCIGlobal.CurrentMilliTime();
+	}
+
+	private void InitDao() throws SQLException {
 		Connection conn = m_dbConnFactory.CreateConnection();
-		m_dao           = new YCIDao(conn, m_cfg.GetReportTabNameSql());
-		m_mapTabName    = m_dao.GetReportTabName();
 		ValidateConnection(conn);
 
-		InitSql();
+		m_dao        = new YCIDao(conn, m_cfg.GetReportTabNameSql());
+		m_mapTabName = m_dao.GetReportTabName();
+		m_logger.info("Get the size of report table name(s): "+m_mapTabName.size());
 	}
 
 	private void ValidateConnection(Connection conn) throws SQLException {
 		if ( conn.isClosed() ) {
+			throw new SQLException("The DB connection of workmanager is closed!");
+		} else {
 			m_logger.info("WorkManager connected the DB.");
 
 			// 禁止自动提交
 			conn.setAutoCommit(false);
-		} else {
-			throw new SQLException("The DB connection of workmanager is invalid!");
 		}
 	}
 
@@ -84,6 +95,18 @@ public class WorkManager {
 		m_logger.info("[WorkManager] Insert state SQL: "+m_sqlInsState);
 	}
 
+	private void CountGetJob() {
+		synchronized(m_jobGetCounter) {
+			++m_jobGetCounter;
+		}
+	}
+
+	private void CountFinishJob() {
+		synchronized(m_jobFinishCounter) {
+			++m_jobFinishCounter;
+		}
+	}
+
 	public int GetMaxCommit() {
 		return m_cfg.GetMaxCommit();
 	}
@@ -98,6 +121,18 @@ public class WorkManager {
 
 	public String GetFailPath() {
 		return m_failPath;
+	}
+
+	public void Show() {
+		if ( YCIGlobal.CurrentIntervalTime(m_currMilliTime) >= YCIGlobal.INTERVAL_TIME ) {
+			m_currMilliTime = YCIGlobal.CurrentMilliTime();
+
+			StringBuilder buf = new StringBuilder("[WorkManager] GetJob(s)=");
+			buf.append(m_jobGetCounter).append(", FinishJob(s)=").append(m_jobFinishCounter);
+			buf.append(", Worker(s)=").append(m_workers.length).append(", Connection(s)=");
+			buf.append(m_dbConnFactory.GetConnectionSize()).append(", Policy(s)=").append(m_policyMgr.GetPolicySize());
+			m_logger.info(buf.toString());
+		}
 	}
 
 	public void StartAll() throws SQLException {
@@ -133,7 +168,7 @@ public class WorkManager {
 
 	// 检查所有工作线程存活状态
 	// 一旦有工作线程死亡则返回 false
-	public boolean CheckWorkersAlive() {
+	public boolean VerifyWorkersAlive() {
 		int death_count = 0;
 		for ( YCIWorker worker : m_workers ) {
 			if ( !worker.IsThreadAlive() ) {
@@ -142,7 +177,7 @@ public class WorkManager {
 		}
 
 		if ( death_count > 0 ) {
-			m_logger.warn("Check workers alive: "+death_count+" worker(s) died (Total: "+m_workers.length+" workers)");
+			m_logger.warn("Verify workers alive: "+death_count+" worker(s) died (Total: "+m_workers.length+" workers)");
 			m_logger.warn("Exiting");
 			return false;
 		}
@@ -157,22 +192,62 @@ public class WorkManager {
 			return null;
 		}
 
+		YCIJob       job  = null;
 		YCIMatchInfo info = m_policyMgr.GetMatch(report_file.GetFileName());
-		return new YCIJob(report_file, info);
+		if ( info != null ) {
+			String cn_tname = m_mapTabName.get(info.GetPolicy().GetDesTable());
+			job = new YCIJob(report_file, info, cn_tname);
+		} else {
+			job = new YCIJob(report_file, info, null);
+		}
+
+		CountGetJob();
+		return job;
 	}
 
 	// 工作任务
 	public void FinishJob(YCIJob job) throws SQLException {
-		UpdateState(new YCIReportState(job));
+		YCIJob.ResultType type = job.GetResult();
+
+		if ( type == YCIJob.ResultType.UNKNOWN ) {
+			m_logger.error("Finish job: ResultType="+type+" ["+job.GetJobInfo()+"]");
+		} else if ( type == YCIJob.ResultType.SUSPEND ) {
+			m_logger.warn("Finish job: ResultType="+type+" ["+job.GetJobInfo()+"]");
+		} else {
+			m_logger.info("Finish job: ResultType="+type+" ["+job.GetJobInfo()+"]");
+
+			YCIReportState state = new YCIReportState(job);
+			try {
+				UpdateState(state);
+			} catch ( SQLException e ) {
+				e.printStackTrace();
+				m_logger.warn("[WorkManager] DB rolling back ...");
+
+				try {
+					m_dao.RollBack();
+				} catch ( SQLException re ) {
+					re.printStackTrace();
+					m_logger.error("[WorkManager] Roll back failed: "+re);
+				}
+
+				throw e;
+			}
+		}
+
+		CountFinishJob();
 	}
 
 	// 更新状态
 	private synchronized void UpdateState(YCIReportState state) throws SQLException {
 		m_dao.SetSql(m_sqlSelState);
 		if ( m_dao.HasReportState(state) ) {
+			m_logger.info("Update report state: "+state.GetInfo());
+
 			m_dao.SetSql(m_sqlUpdState);
 			m_dao.UpdateReportState(state);
 		} else {
+			m_logger.info("Insert report state: "+state.GetInfo());
+
 			m_dao.SetSql(m_sqlInsState);
 			m_dao.InsertReportState(state);
 		}

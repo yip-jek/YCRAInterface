@@ -5,6 +5,7 @@ public class YCIJob {
 
 	private InputReportFile m_reportFile = null;				// 输入报表文件
 	private YCIMatchInfo    m_matchInfo  = null;				// 匹配信息
+	private String          m_cnTabName  = null;				// 中文表名
 	private ResultType      m_resultType = ResultType.UNKNOWN;
 
 	// 结果类型
@@ -15,13 +16,38 @@ public class YCIJob {
 		FAIL
 	}
 
-	public YCIJob(InputReportFile file, YCIMatchInfo info) {
+	public YCIJob(InputReportFile file, YCIMatchInfo info, String cn_tabname) {
 		m_reportFile = file;
 		m_matchInfo  = info;
+		m_cnTabName  = cn_tabname;
 	}
 
 	public InputReportFile GetReportFile() {
 		return m_reportFile;
+	}
+
+	public YCIMatchInfo GetMatchInfo() {
+		return m_matchInfo;
+	}
+
+	public String GetCNTabName() {
+		return m_cnTabName;
+	}
+
+	public String GetJobInfo() {
+		StringBuilder buf = new StringBuilder("FILE_PATH=");
+		buf.append(m_reportFile.GetFilePath()).append(", FILE_LENGTH=").append(m_reportFile.GetFileLength());
+
+		if ( HasMatchInfo() ) {
+			YCIPolicy p = m_matchInfo.GetPolicy();
+			buf.append(", POLICY_ID=").append(p.GetID()).append(", SRC_FILE=").append(p.GetSrcFile());
+			buf.append(", FILE_ENCODING=").append(p.GetSrcFileEncoding()).append(", COLUMN_SIZE=");
+			buf.append(p.GetSrcColumnSize()).append(", DES_TABLE=").append(p.GetDesTable());
+		} else {
+			buf.append(", MATCH_INFO=<NULL>");
+		}
+
+		return buf.toString();
 	}
 
 	public boolean HasMatchInfo() {
@@ -46,10 +72,6 @@ public class YCIJob {
 
 		m_reportFile.Close();
 		return report_datas;
-	}
-
-	public String GetStoreSql() {
-		return m_matchInfo.CreateStoreSql();
 	}
 
 	// 设置结果

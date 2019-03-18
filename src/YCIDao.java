@@ -14,6 +14,10 @@ public class YCIDao {
 	private Connection m_connection = null;
 	private String     m_sql        = null;
 
+	public YCIDao(Connection conn) {
+		m_connection = conn;
+	}
+
 	public YCIDao(Connection conn, String sql) {
 		m_connection = conn;
 		m_sql        = sql;
@@ -32,6 +36,16 @@ public class YCIDao {
 		m_sql = sql;
 	}
 
+	private void NeedToCommit() throws SQLException {
+		if ( !m_connection.getAutoCommit() ) {
+			m_connection.commit();
+		}
+	}
+
+	public void RollBack() throws SQLException {
+		m_connection.rollback();
+	}
+
 	// 获取地市信息
 	public YCIRegion[] GetRegionInfo() throws SQLException {
 		Statement stat = m_connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -45,10 +59,11 @@ public class YCIDao {
 		int index = 0;
 		rs.beforeFirst();
 		while ( rs.next() ) {
-			YCIRegion yc_reg = new YCIRegion(rs.getString(1));
+			YCIRegion yc_reg = new YCIRegion(rs.getString(1), rs.getString(2));
 			regions[index++] = yc_reg;
 		}
 
+		NeedToCommit();
 		stat.close();
 		return regions;
 	}
@@ -63,6 +78,7 @@ public class YCIDao {
 			map_tabname.put(rs.getString(1), rs.getString(2));
 		}
 
+		NeedToCommit();
 		stat.close();
 		return map_tabname;
 	}
@@ -114,6 +130,7 @@ public class YCIDao {
 			has_state = (rs.getInt(1) > 0);
 		}
 
+		NeedToCommit();
 		p_stat.close();
 		return has_state;
 	}

@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 // 策略管理类
 public class PolicyManager {
 
-	private static final String TOTAL_POLICY = "TOTAL_POLICY";
+	public static final String TOTAL_POLICY = "TOTAL_POLICY";
 
 	private Logger      m_logger  = null;
 	private YCIPolicy[] m_policys = null;
@@ -39,6 +39,10 @@ public class PolicyManager {
 
 	public YCIRegion[] GetRegions() {
 		return m_regions;
+	}
+
+	public int GetPolicySize() {
+		return m_policys.length;
 	}
 
 	// 获取文件名匹配的策略

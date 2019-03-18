@@ -1,5 +1,4 @@
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -54,12 +53,11 @@ public class YCRAInterface {
 
 	// 创建日志
 	private void CreateLogger() throws IOException {
-		File log_file = new File(m_log4j2file);
+		FileInputStream     file_is = new FileInputStream(m_log4j2file);
+		BufferedInputStream buf_is  = new BufferedInputStream(file_is);
+		ConfigurationSource cfg_src = new ConfigurationSource(buf_is);
 
-		BufferedInputStream log_in = new BufferedInputStream(new FileInputStream(log_file));
-		final ConfigurationSource log_src = new ConfigurationSource(log_in);
-
-		Configurator.initialize(null, log_src);
+		Configurator.initialize(null, cfg_src);
 		m_logger = LogManager.getLogger(Object.class);
 
 		OutputLogHeader();
@@ -85,8 +83,8 @@ public class YCRAInterface {
 		Connection  conn    = m_dbConnFactory.CreateConnection();
 		YCIDao      dao     = new YCIDao(conn, m_yciconfig.GetRegionSql());
 		YCIRegion[] regions = dao.GetRegionInfo();
-		m_logger.info("Fetch region(s) size: "+regions.length);
 		m_dbConnFactory.ReleaseConnection(conn);
+		m_logger.info("Get the size of region(s): "+regions.length);
 
 		m_policyMgr = new PolicyManager(m_yciconfig.GetPolicy(), regions);
 	}
@@ -127,7 +125,7 @@ public class YCRAInterface {
 			Thread.sleep(YCIGlobal.LOOP_SLEEP_TIME);
 
 			Do();
-		} while ( !m_ycsignal.IsQuitSignal() && m_workMgr.CheckWorkersAlive() );
+		} while ( !m_ycsignal.IsQuitSignal() && m_workMgr.VerifyWorkersAlive() );
 
 		End();
 	}
@@ -140,14 +138,15 @@ public class YCRAInterface {
 
 	private void Do() {
 		m_input.TryGetFiles();
+		m_workMgr.Show();
 	}
 
 	private void End() throws InterruptedException, SQLException {
 		m_workMgr.Prepare2StopAll();
 		m_workMgr.Wait2StopAll();
 
+		m_logger.info("Release all connections ...");
 		m_dbConnFactory.ReleaseAllConnection();
-		m_logger.info("Released all connections.");
 	}
 
 	public static void main(String[] args) {

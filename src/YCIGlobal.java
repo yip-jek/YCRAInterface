@@ -8,9 +8,11 @@ import java.util.Properties;
 
 public class YCIGlobal {
 
-	public static final String VERSION          = "Version 1.8.0";			// 版本
-	public static final int    LOOP_SLEEP_TIME  = 1000;						// 每一个循环的睡眠时间
-	public static final int    EXTRA_SLEEP_TIME = 60*1000;					// 额外的睡眠时间
+	public static final String VERSION = "Version 2.0.0";			// 版本号
+
+	public static final int LOOP_SLEEP_TIME  = 1000;				// 每一个循环的睡眠时间
+	public static final int EXTRA_SLEEP_TIME = 60*1000;				// 额外的睡眠时间
+	public static final int INTERVAL_TIME    = 60*5;				// 间隔时间（单位：秒）
 
 	// 获取进程ID
 	public static final int GetProcessID() {
@@ -21,6 +23,17 @@ public class YCIGlobal {
 	// 是否为Windows操作系统？
 	public static final boolean IsWindowsOS() {
 		return System.getProperty("os.name").toLowerCase().startsWith("win");
+	}
+
+	// 获取当前毫秒数
+	public static long CurrentMilliTime() {
+		return System.currentTimeMillis();
+	}
+
+	// 获取当前时间间隔（单位：秒）
+	public static int CurrentIntervalTime(long last_time) {
+		long l_interval = CurrentMilliTime() - last_time;
+		return (int)(l_interval/1000);
 	}
 
 	// 获取当前时间（指定格式）
