@@ -3,6 +3,7 @@ import java.io.IOException;
 // 工作任务类
 public class YCIJob {
 
+	private int             m_workerID   = 0;					// 所属Worker ID
 	private InputReportFile m_reportFile = null;				// 输入报表文件
 	private YCIMatchInfo    m_matchInfo  = null;				// 匹配信息
 	private String          m_cnTabName  = null;				// 中文表名
@@ -16,10 +17,15 @@ public class YCIJob {
 		FAIL
 	}
 
-	public YCIJob(InputReportFile file, YCIMatchInfo info, String cn_tabname) {
+	public YCIJob(int id, InputReportFile file, YCIMatchInfo info, String cn_tabname) {
+		m_workerID   = id;
 		m_reportFile = file;
 		m_matchInfo  = info;
 		m_cnTabName  = cn_tabname;
+	}
+
+	public int GetWorkerID() {
+		return m_workerID;
 	}
 
 	public InputReportFile GetReportFile() {
@@ -35,8 +41,9 @@ public class YCIJob {
 	}
 
 	public String GetJobInfo() {
-		StringBuilder buf = new StringBuilder("FILE_PATH=");
-		buf.append(m_reportFile.GetFilePath()).append(", FILE_LENGTH=").append(m_reportFile.GetFileLength());
+		StringBuilder buf = new StringBuilder("WORKER_ID=");
+		buf.append(m_workerID).append(", FILE_PATH=").append(m_reportFile.GetFilePath());
+		buf.append(", FILE_LENGTH=").append(m_reportFile.GetFileLength());
 
 		if ( HasMatchInfo() ) {
 			YCIPolicy p = m_matchInfo.GetPolicy();

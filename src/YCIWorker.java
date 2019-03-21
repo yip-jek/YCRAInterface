@@ -60,7 +60,7 @@ public class YCIWorker implements Runnable {
 	}
 
 	private void DoJob() throws InterruptedException, IOException, SQLException {
-		YCIJob job = m_workMgr.GetJob();
+		YCIJob job = m_workMgr.GetJob(GetID());
 		if ( job == null ) {
 			Thread.sleep(YCIGlobal.EXTRA_SLEEP_TIME);
 			return;
@@ -139,7 +139,12 @@ public class YCIWorker implements Runnable {
 		ReportFileData[] report_datas = job.ReadFileData();
 		m_logger.info("[Worker ID="+GetID()+"] File \""+report_file.GetFilePath()+"\", read line(s): "+report_datas.length);
 
-		m_dao.SetSql(job.GetMatchInfo().CreateStoreSql());
+		YCIMatchInfo info      = job.GetMatchInfo();
+		final String STORE_SQL = info.CreateStoreSql();
+		m_logger.info("[Worker ID="+GetID()+"] Store SQL: "+STORE_SQL);
+		m_dao.SetSql(STORE_SQL);
+
+		NeedToReplaceRegion(info, report_datas);
 		try {
 			m_dao.StoreReportData(report_datas);
 		} catch (SQLException e) {
@@ -165,6 +170,44 @@ public class YCIWorker implements Runnable {
 
 			throw new YCIException("Store report data failed! Cause SQLException: "+error);
 		}
+	}
+
+	// 替换地市信息
+	private void NeedToReplaceRegion(YCIMatchInfo info, ReportFileData[] datas) throws YCIException {
+		String replace_type = info.TryGetReplaceRegion();
+		if ( replace_type != null ) {
+			String[] sections       = YCIGlobal.SplitTrim(replace_type, ":", 2);
+			int      index          = Integer.parseInt(sections[1]) - 1;
+			String   src_region     = datas[0].GetColumnData(index);
+			String   replace_region = FindRegionInfo(sections[0], src_region);
+
+			for ( ReportFileData report_data : datas ) {
+				report_data.SetColumnData(index, replace_region);
+			}
+		}
+	}
+
+	// 找出对应地市信息
+	private String FindRegionInfo(String type, String src) throws YCIException {
+		YCIRegion[] regions = m_workMgr.GetRegions();
+
+		if ( type.equals(YCIMatchInfo.REGION_REPLACE_CTOE) ) {		// 地市：中->英
+			for ( YCIRegion reg : regions ) {
+				if ( src.equals(reg.GetCityName()) ) {
+					return reg.GetCityCode();
+				}
+			}
+		} else if ( type.equals(YCIMatchInfo.REGION_REPLACE_ETOC) ) {	// 地市：英->中
+			for ( YCIRegion reg : regions ) {
+				if ( src.equals(reg.GetCityCode()) ) {
+					return reg.GetCityName();
+				}
+			}
+		} else {
+			throw new YCIException("Unsupported region replace type: "+type);
+		}
+
+		throw new YCIException("Can not find the region information!");
 	}
 
 	// 备份

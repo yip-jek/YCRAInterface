@@ -24,4 +24,8 @@ public class ReportFileData {
 		return m_data[index];
 	}
 
+	public void SetColumnData(int index, String dat) {
+		m_data[index] = dat;
+	}
+
 }

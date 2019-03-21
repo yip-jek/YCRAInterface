@@ -7,6 +7,11 @@ public class YCIMatchInfo {
 	public static final String FIELD_DATE         = "DATE";				// 日期
 	public static final String FIELD_SEQ          = "SEQ";				// 序号
 
+	// 地市字段替换
+	public static final String REGION_REPLACE_ETOC = "REGION_ETOC";		// 地市替换：英->中
+	public static final String REGION_REPLACE_CTOE = "REGION_CTOE";		// 地市替换：中->英
+	public static final int    INVALID_FIELD_INDEX = -1;				// 无效的字段索引
+
 	private YCIPolicy m_policy = null;			// 策略
 	private String    m_city   = null;			// 地市
 	private String    m_date   = null;			// 日期
@@ -17,6 +22,25 @@ public class YCIMatchInfo {
 		m_city   = city;
 		m_date   = date;
 		m_seq    = seq;
+	}
+
+	// 获取地市替换字段类型及索引，若有则返回“类型:索引”，没有则返回null
+	// 格式1：[目的字段名:REGION_CTOE:源字段所在索引位置]
+	// 格式2：[目的字段名:REGION_ETOC:源字段所在索引位置]
+	// 注：索引位置从1开始
+	public String TryGetReplaceRegion() {
+		String[] fields = m_policy.GetDesFields();
+		for ( String f : fields ) {
+			if ( YCIGlobal.IsSurroundWithBrackets(f) ) {
+				String[] sections = YCIGlobal.SplitTrim(f.substring(1, f.length()-1), ":", 3);
+				if ( sections.length == 3 && (sections[1].equals(REGION_REPLACE_CTOE)
+					|| sections[1].equals(REGION_REPLACE_ETOC)) && Integer.parseInt(sections[2]) > 0 ) {
+					return (sections[1]+":"+sections[2]);
+				}
+			}
+		}
+
+		return null;
 	}
 
 	public YCIPolicy GetPolicy() {
@@ -82,16 +106,20 @@ public class YCIMatchInfo {
 			return ("'"+m_date+"'");
 		case FIELD_SEQ:
 			return String.valueOf(m_seq);
-		default:	// FIELD_CURRENT_TIME ?
-			return CurrentTimeOfTheField(field);
+		default:
+			return ValueOfThreeSectionsField(field);
 		}
 	}
 
-	private String CurrentTimeOfTheField(String fmt) {
+	private String ValueOfThreeSectionsField(String fmt) {
 		String[] fields = YCIGlobal.SplitTrim(fmt, ":", 2);
-		if ( fields[0].equals(FIELD_CURRENT_TIME) ) {
+		switch ( fields[0] ) {
+		case FIELD_CURRENT_TIME:
 			return ("'"+YCIGlobal.CurrentDateTime(fields[1])+"'");
-		} else {
+		case REGION_REPLACE_CTOE:
+		case REGION_REPLACE_ETOC:
+			return "?";
+		default:
 			throw new IllegalArgumentException("Unsupported field format: "+fmt);
 		}
 	}

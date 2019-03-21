@@ -111,6 +111,10 @@ public class WorkManager {
 		return m_cfg.GetMaxCommit();
 	}
 
+	public YCIRegion[] GetRegions() {
+		return m_policyMgr.GetRegions();
+	}
+
 	public String GetBackupPath() {
 		return m_backupPath;
 	}
@@ -186,7 +190,7 @@ public class WorkManager {
 	}
 
 	// 获取任务
-	public YCIJob GetJob() {
+	public YCIJob GetJob(int worker_id) {
 		InputReportFile report_file = m_input.GetInputReportFile();
 		if ( report_file == null ) {
 			return null;
@@ -196,9 +200,9 @@ public class WorkManager {
 		YCIMatchInfo info = m_policyMgr.GetMatch(report_file.GetFileName());
 		if ( info != null ) {
 			String cn_tname = m_mapTabName.get(info.GetPolicy().GetDesTable());
-			job = new YCIJob(report_file, info, cn_tname);
+			job = new YCIJob(worker_id, report_file, info, cn_tname);
 		} else {
-			job = new YCIJob(report_file, info, null);
+			job = new YCIJob(worker_id, report_file, info, null);
 		}
 
 		CountGetJob();
