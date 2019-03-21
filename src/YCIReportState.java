@@ -34,12 +34,12 @@ public class YCIReportState {
 		YCIPolicy    policy = info.GetPolicy();
 
 		m_importTime = YCIGlobal.CurrentDateTime(IMPORT_TIME_FORMAT);
-		m_cnTabName  = job.GetCNTabName();
-		m_enTabName  = policy.GetDesTable();
-		m_date       = info.GetDate();
-		m_city       = info.GetCity();
+		m_cnTabName  = YCIGlobal.NullToEmpty(job.GetCNTabName());
+		m_enTabName  = YCIGlobal.NullToEmpty(policy.GetDesTable());
+		m_date       = YCIGlobal.NullToEmpty(info.GetDate());
+		m_city       = YCIGlobal.NullToEmpty(info.GetCity());
 		m_num        = String.valueOf(info.GetSeq());
-		m_records    = String.valueOf(input_file.GetLintCount());
+		m_records    = String.valueOf(input_file.GetLineCount());
 
 		YCIJob.ResultType type = job.GetResult();
 		if ( type == YCIJob.ResultType.SUCCESS ) {

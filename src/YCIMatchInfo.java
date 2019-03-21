@@ -46,13 +46,13 @@ public class YCIMatchInfo {
 		for ( String des_fd : des_fields ) {
 			// 格式：[目标表字段名:特殊字段名(:格式表达式)]
 			if ( YCIGlobal.IsSurroundWithBrackets(des_fd) ) {
-				des_sp = YCIGlobal.SplitTrim(des_fd, ":", 2);
+				des_sp = YCIGlobal.SplitTrim(des_fd.substring(1, des_fd.length()-1), ":", 2);
 
 				buf_head.append(des_sp[0]);
 				try {
 					buf_tail.append(ValueOfSpecialField(des_sp[1]));
 				} catch ( IllegalArgumentException e ) {
-					throw new IllegalArgumentException("Invalid field definition: "+des_fd);
+					throw new IllegalArgumentException("Invalid field definition: "+des_fd+", "+e);
 				}
 			} else {
 				buf_head.append(des_fd);
@@ -89,7 +89,7 @@ public class YCIMatchInfo {
 
 	private String CurrentTimeOfTheField(String fmt) {
 		String[] fields = YCIGlobal.SplitTrim(fmt, ":", 2);
-		if ( fields[0] == FIELD_CURRENT_TIME ) {
+		if ( fields[0].equals(FIELD_CURRENT_TIME) ) {
 			return ("'"+YCIGlobal.CurrentDateTime(fields[1])+"'");
 		} else {
 			throw new IllegalArgumentException("Unsupported field format: "+fmt);

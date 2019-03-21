@@ -40,7 +40,9 @@ public class YCIJob {
 
 		if ( HasMatchInfo() ) {
 			YCIPolicy p = m_matchInfo.GetPolicy();
-			buf.append(", POLICY_ID=").append(p.GetID()).append(", SRC_FILE=").append(p.GetSrcFile());
+
+			buf.append(", DATE=").append(m_matchInfo.GetDate()).append(", CITY=");
+			buf.append(m_matchInfo.GetCity()).append(", NUM=").append(m_matchInfo.GetSeq());
 			buf.append(", FILE_ENCODING=").append(p.GetSrcFileEncoding()).append(", COLUMN_SIZE=");
 			buf.append(p.GetSrcColumnSize()).append(", DES_TABLE=").append(p.GetDesTable());
 		} else {

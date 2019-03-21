@@ -12,11 +12,22 @@ import java.io.UnsupportedEncodingException;
 public class InputReportFile {
 
 	private File           m_file      = null;
+	private String         m_path      = null;
+	private String         m_name      = null;
+	private long           m_length    = 0;
 	private BufferedReader m_reader    = null;
 	private int            m_lineCount = 0;
 
 	public InputReportFile(File file) {
 		m_file = file;
+
+		Init();
+	}
+
+	private void Init() {
+		m_path   = m_file.getPath();
+		m_name   = m_file.getName();
+		m_length = m_file.length();
 	}
 
 	public void MoveTo(String path) throws IOException {
@@ -24,18 +35,18 @@ public class InputReportFile {
 	}
 
 	public String GetFilePath() {
-		return m_file.getPath();
+		return m_path;
 	}
 
 	public String GetFileName() {
-		return m_file.getName();
+		return m_name;
 	}
 
 	public long GetFileLength() {
-		return m_file.length();
+		return m_length;
 	}
 
-	public int GetLintCount() {
+	public int GetLineCount() {
 		return m_lineCount;
 	}
 

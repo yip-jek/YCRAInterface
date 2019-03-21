@@ -8,7 +8,7 @@ import java.util.Properties;
 
 public class YCIGlobal {
 
-	public static final String VERSION = "Version 2.0.0";			// 版本号
+	public static final String VERSION = "Version 2.0.4";			// 版本号
 
 	public static final int LOOP_SLEEP_TIME  = 1000;				// 每一个循环的睡眠时间
 	public static final int EXTRA_SLEEP_TIME = 60*1000;				// 额外的睡眠时间
@@ -39,6 +39,14 @@ public class YCIGlobal {
 	// 获取当前时间（指定格式）
 	public static String CurrentDateTime(String format) {
 		return new SimpleDateFormat(format).format(new Date());
+	}
+
+	public static String NullToEmpty(String s) {
+		if ( s == null ) {
+			return "";
+		} else {
+			return s;
+		}
 	}
 
 	// 读取配置信息
