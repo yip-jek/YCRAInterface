@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -135,18 +136,18 @@ public class YCIWorker implements Runnable {
 	}
 
 	private void StoreData(YCIJob job) throws YCIException, IOException {
-		InputReportFile  report_file  = job.GetReportFile();
-		ReportFileData[] report_datas = job.ReadFileData();
-		m_logger.info("[Worker ID="+GetID()+"] File \""+report_file.GetFilePath()+"\", read line(s): "+report_datas.length);
+		InputReportFile           report_file = job.GetReportFile();
+		ArrayList<ReportFileData> list_data   = job.ReadFileData();
+		m_logger.info("[Worker ID="+GetID()+"] File \""+report_file.GetFilePath()+"\", read line(s): "+list_data.size());
 
 		YCIMatchInfo info      = job.GetMatchInfo();
 		final String STORE_SQL = info.CreateStoreSql();
 		m_logger.info("[Worker ID="+GetID()+"] Store SQL: "+STORE_SQL);
 		m_dao.SetSql(STORE_SQL);
 
-		NeedToReplaceRegion(info, report_datas);
+		NeedToReplaceRegion(info, list_data);
 		try {
-			m_dao.StoreReportData(report_datas);
+			m_dao.StoreReportData(list_data);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			m_logger.error("Worker [ID="+GetID()+"] "+e);
@@ -173,15 +174,15 @@ public class YCIWorker implements Runnable {
 	}
 
 	// 替换地市信息
-	private void NeedToReplaceRegion(YCIMatchInfo info, ReportFileData[] datas) throws YCIException {
+	private void NeedToReplaceRegion(YCIMatchInfo info, ArrayList<ReportFileData> list) throws YCIException {
 		String replace_type = info.TryGetReplaceRegion();
 		if ( replace_type != null ) {
 			String[] sections       = YCIGlobal.SplitTrim(replace_type, ":", 2);
 			int      index          = Integer.parseInt(sections[1]) - 1;
-			String   src_region     = datas[0].GetColumnData(index);
+			String   src_region     = list.get(0).GetColumnData(index);
 			String   replace_region = FindRegionInfo(sections[0], src_region);
 
-			for ( ReportFileData report_data : datas ) {
+			for ( ReportFileData report_data : list ) {
 				report_data.SetColumnData(index, replace_region);
 			}
 		}

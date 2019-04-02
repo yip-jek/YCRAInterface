@@ -3,6 +3,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 // 数据库访问类
@@ -84,15 +85,11 @@ public class YCIDao {
 	}
 
 	// 入库报表数据
-	public void StoreReportData(ReportFileData[] datas) throws SQLException {
+	public void StoreReportData(ArrayList<ReportFileData> datas) throws SQLException {
 		PreparedStatement p_stat = m_connection.prepareStatement(m_sql);
 
 		int counter = 0;
-		ReportFileData report_dat = null;
-
-		for ( int i = 0; i < datas.length; ++i ) {
-			report_dat = datas[i];
-
+		for ( ReportFileData report_dat : datas ) {
 			for ( int j = 0; j < report_dat.GetColumnSize(); ++j ) {
 				p_stat.setObject(j+1, report_dat.GetColumnData(j));
 			}

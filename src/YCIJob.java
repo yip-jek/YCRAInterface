@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.ArrayList;
 
 // 工作任务类
 public class YCIJob {
@@ -67,20 +68,21 @@ public class YCIJob {
 		return (m_reportFile.GetFileLength() == 0);
 	}
 
-	public ReportFileData[] ReadFileData() throws IOException, YCIException {
-		YCIPolicy        policy       = m_matchInfo.GetPolicy();
-		String           reg_separtor = policy.GetSrcRegexSeparator();
-		int              column_size  = policy.GetSrcColumnSize();
-		ReportFileData   data         = null;
-		ReportFileData[] report_datas = new ReportFileData[m_reportFile.GetLineNumber()];
+	public ArrayList<ReportFileData> ReadFileData() throws IOException, YCIException {
+		YCIPolicy policy       = m_matchInfo.GetPolicy();
+		String    reg_separtor = policy.GetSrcRegexSeparator();
+		int       column_size  = policy.GetSrcColumnSize();
+
+		ReportFileData            data      = null;
+		ArrayList<ReportFileData> list_data = new ArrayList<ReportFileData>();
 
 		m_reportFile.Open(policy.GetSrcFileEncoding());
-		for ( int i = 0; (data = m_reportFile.ReadData(reg_separtor, column_size)) != null; ++i ) {
-			report_datas[i] = data;
+		while ( (data = m_reportFile.ReadData(reg_separtor, column_size)) != null ) {
+			list_data.add(data);
 		}
 
 		m_reportFile.Close();
-		return report_datas;
+		return list_data;
 	}
 
 	// 设置结果

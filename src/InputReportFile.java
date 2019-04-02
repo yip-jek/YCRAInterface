@@ -2,10 +2,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.io.UnsupportedEncodingException;
 
 // 输入报表文件类
@@ -48,14 +46,6 @@ public class InputReportFile {
 
 	public int GetLineCount() {
 		return m_lineCount;
-	}
-
-	public int GetLineNumber() throws IOException {
-		LineNumberReader line_reader = null;
-		line_reader = new LineNumberReader(new FileReader(m_file));
-		line_reader.skip(Long.MAX_VALUE);
-		line_reader.close();
-		return (line_reader.getLineNumber() + 1);
 	}
 
 	public void Open(String charset_name) throws FileNotFoundException, UnsupportedEncodingException {
