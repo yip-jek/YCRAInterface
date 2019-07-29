@@ -11,7 +11,8 @@ Policy_1.src_file_encoding=
 # 源文件数据列数
 Policy_1.src_file_column_size=
 # 源文件数据分隔符
-Policy_1.src_file_separator=
+# 竖线分隔要用转义"\\|"
+Policy_1.src_file_regex_separator=
 # 数据库目标表名
 Policy_1.des_table=
 # 数据库目标表字段名称（多个字段以英文逗号分隔）
@@ -25,7 +26,8 @@ Policy_2.src_file_encoding=
 # 源文件数据列数
 Policy_2.src_file_column_size=
 # 源文件数据分隔符
-Policy_2.src_file_separator=
+# 竖线分隔要用转义"\\|"
+Policy_2.src_file_regex_separator=
 # 数据库目标表名
 Policy_2.des_table=
 # 数据库目标表字段名称（多个字段以英文逗号分隔）
@@ -39,8 +41,10 @@ Policy_3.src_file_encoding=
 # 源文件数据列数
 Policy_3.src_file_column_size=
 # 源文件数据分隔符
-Policy_3.src_file_separator=
+# 竖线分隔要用转义"\\|"
+Policy_3.src_file_regex_separator=
 # 数据库目标表名
 Policy_3.des_table=
 # 数据库目标表字段名称（多个字段以英文逗号分隔）
 Policy_3.des_fields=
+

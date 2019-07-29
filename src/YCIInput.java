@@ -12,7 +12,8 @@ public class YCIInput {
 	private String[] m_paths      = null;			// 输入路径
 	private File[]   m_pathFiles  = null;
 
-	private LinkedBlockingQueue<InputReportFile> m_queFileList = null;
+	private LinkedBlockingQueue<InputReportFile> m_queFound   = null;		// 找到的文件列表
+	private LinkedBlockingQueue<InputReportFile> m_queProcess = null;		// 正在处理的文件列表
 
 	public YCIInput(YCIConfig cfg) throws IOException {
 		m_paths = cfg.GetInputPaths();
@@ -21,8 +22,9 @@ public class YCIInput {
 	}
 
 	private void Init() throws IOException {
-		m_logger      = LogManager.getLogger(Object.class);
-		m_queFileList = new LinkedBlockingQueue<InputReportFile>();
+		m_logger     = LogManager.getLogger(Object.class);
+		m_queFound   = new LinkedBlockingQueue<InputReportFile>();
+		m_queProcess = new LinkedBlockingQueue<InputReportFile>();
 
 		m_pathFiles = new File[m_paths.length];
 		for ( int i = 0; i < m_pathFiles.length; ++i ) {
@@ -35,21 +37,34 @@ public class YCIInput {
 	}
 
 	public void TryGetFiles() {
-		if ( m_queFileList.isEmpty() ) {
+		// No file found or no file in processing
+		if ( m_queProcess.isEmpty() && m_queFound.isEmpty() ) {
 			for ( File path_file : m_pathFiles ) {
 				for ( File in_file : path_file.listFiles() ) {
-					m_queFileList.add(new InputReportFile(in_file));
+					m_queFound.add(new InputReportFile(in_file));
 				}
 			}
 
-			if ( !m_queFileList.isEmpty() ) {
-				m_logger.info("[INPUT] Get file(s): "+m_queFileList.size());
+			if ( !m_queFound.isEmpty() ) {
+				m_logger.info("[INPUT] Get file(s): "+m_queFound.size());
 			}
 		}
 	}
 
-	public InputReportFile GetInputReportFile() {
-		return m_queFileList.poll();
+	public InputReportFile GetInputFile() {
+		InputReportFile report_file = m_queFound.poll();
+		if ( report_file != null ) {
+			m_queProcess.add(report_file);
+			m_logger.info("[INPUT] Process file: "+report_file.GetFilePath());
+		}
+
+		return report_file;
+	}
+
+	public void DoneInputFile(InputReportFile file) throws YCIException {
+		if ( !m_queProcess.remove(file) ) {
+			throw new YCIException("No such input report file: "+file.GetFilePath());
+		}
 	}
 
 }

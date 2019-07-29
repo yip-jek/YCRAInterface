@@ -1,10 +1,8 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 
 // 输入报表文件类
 public class InputReportFile {
@@ -48,16 +46,23 @@ public class InputReportFile {
 		return m_lineCount;
 	}
 
-	public void Open(String charset_name) throws FileNotFoundException, UnsupportedEncodingException {
+	public void Open(String charset_name) throws IOException {
 		FileInputStream   file_input   = new FileInputStream(m_file);
 		InputStreamReader input_reader = new InputStreamReader(file_input, charset_name);
 
 		m_lineCount = 0;
 		m_reader    = new BufferedReader(input_reader);
+
+		SkipHeaderLine();
 	}
 
 	public void Close() throws IOException {
 		m_reader.close();
+	}
+
+	private void SkipHeaderLine() throws IOException {
+		// Skip the header line
+		m_reader.readLine();
 	}
 
 	public ReportFileData ReadData(String regex_separator, int column_size) throws IOException, YCIException {

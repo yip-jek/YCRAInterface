@@ -191,7 +191,7 @@ public class WorkManager {
 
 	// 获取任务
 	public YCIJob GetJob(int worker_id) {
-		InputReportFile report_file = m_input.GetInputReportFile();
+		InputReportFile report_file = m_input.GetInputFile();
 		if ( report_file == null ) {
 			return null;
 		}
@@ -210,8 +210,11 @@ public class WorkManager {
 	}
 
 	// 工作任务
-	public void FinishJob(YCIJob job) throws SQLException {
+	public void FinishJob(YCIJob job) throws SQLException, YCIException {
 		YCIJob.ResultType type = job.GetResult();
+
+		// Done with the input report file
+		m_input.DoneInputFile(job.GetReportFile());
 
 		if ( type == YCIJob.ResultType.UNKNOWN ) {
 			m_logger.error("Finish job: ResultType="+type+" ["+job.GetJobInfo()+"]");

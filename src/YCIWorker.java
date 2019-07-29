@@ -50,9 +50,13 @@ public class YCIWorker implements Runnable {
 				Thread.sleep(YCIGlobal.LOOP_SLEEP_TIME);
 
 				DoJob();
-			} catch (InterruptedException | IOException | SQLException e) {
+			} catch (InterruptedException | IOException | SQLException | YCIException e) {
 				e.printStackTrace();
 				m_logger.error("Worker [ID="+GetID()+"] quit unexpectedly, cause: "+e);
+				return;
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				m_logger.error("Worker [ID="+GetID()+"] quit unexpectedly, cause: "+ex);
 				return;
 			}
 		}
@@ -60,7 +64,7 @@ public class YCIWorker implements Runnable {
 		m_logger.info("Worker [ID="+GetID()+"] end.");
 	}
 
-	private void DoJob() throws InterruptedException, IOException, SQLException {
+	private void DoJob() throws InterruptedException, IOException, SQLException, YCIException {
 		YCIJob job = m_workMgr.GetJob(GetID());
 		if ( job == null ) {
 			Thread.sleep(YCIGlobal.EXTRA_SLEEP_TIME);
@@ -138,7 +142,12 @@ public class YCIWorker implements Runnable {
 	private void StoreData(YCIJob job) throws YCIException, IOException {
 		InputReportFile           report_file = job.GetReportFile();
 		ArrayList<ReportFileData> list_data   = job.ReadFileData();
+
 		m_logger.info("[Worker ID="+GetID()+"] File \""+report_file.GetFilePath()+"\", read line(s): "+list_data.size());
+		if ( list_data.isEmpty() ) {
+			m_logger.warn("[Worker ID="+GetID()+"] Blank file just with the header line!");
+			return;
+		}
 
 		YCIMatchInfo info      = job.GetMatchInfo();
 		final String STORE_SQL = info.CreateStoreSql();
